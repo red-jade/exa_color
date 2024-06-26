@@ -11,7 +11,7 @@ defmodule Exa.Color.Col1b do
 
   alias Exa.Math
   alias Exa.Convert
-  
+
   alias Exa.Color.Colorb
   alias Exa.Color.Col3b
   alias Exa.Color.Col3f
@@ -68,19 +68,19 @@ defmodule Exa.Color.Col1b do
 
   # binary conversions ----------
 
+  @c1 [:gray, :index]
+
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(i, pix \\ :gray)
-  def to_bin(i, :gray) when is_col1b(i), do: <<i>>
+  def to_bin(i, pix \\ :gray) when pix in @c1 and is_col1b(i), do: <<i>>
 
   @impl Colorb
-  def append_bin(buf, pix \\ :gray, col)
-  def append_bin(buf, :gray, i) when is_binary(buf) and is_col1b(i), do: <<buf::binary, i>>
+  def append_bin(buf, pix \\ :gray, i) when pix in @c1 and is_binary(buf) and is_col1b(i),
+    do: <<buf::binary, i>>
 
   @impl Colorb
-  def from_bin(buf, pix \\ :gray)
-  def from_bin(<<i, rest::binary>>, :gray), do: {i, rest}
+  def from_bin(<<i, rest::binary>>, pix \\ :gray) when pix in @c1, do: {i, rest}
 
   # -----------------
   # private functions

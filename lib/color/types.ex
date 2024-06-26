@@ -49,7 +49,7 @@ defmodule Exa.Color.Types do
   # generic 
 
   @typedoc "Any byte color."
-  @type colorb() :: G.col1b() | G.col3b() | G.col4b()
+  @type colorb() :: col1b() | col3b() | col4b()
 
   defguard is_colorb(c) when is_col1b(c) or is_col3b(c) or is_col4b(c)
 
@@ -57,7 +57,7 @@ defmodule Exa.Color.Types do
            when (n == 1 and is_col1b(c)) or (n == 3 and is_col3b(c)) or (n == 4 and is_col4b(c))
 
   @typedoc "Any float color."
-  @type colorf() :: G.col1f() | G.col3f() | G.col4f()
+  @type colorf() :: col1f() | col3f() | col4f()
 
   defguard is_colorf(c) when is_col1f(c) or is_col3f(c) or is_col4f(c)
 
@@ -89,7 +89,7 @@ defmodule Exa.Color.Types do
 
   @type colors1() :: [color1(), ...]
   defguard is_colors1(cs) when is_nonempty_list(cs) and is_color1(hd(cs))
- 
+
   # ------------
   # color models
   # ------------
@@ -106,10 +106,22 @@ defmodule Exa.Color.Types do
   # named colors
   # ------------
 
-  @type col3name() :: {atom(), G.col3b()}
+  @type col3name() :: {String.t(), col3b()}
   defguard is_col3name(c)
            when is_fix_tuple(c, 2) and
-                  is_atom(elem(c, 0)) and is_col3b(elem(c, 1))
+                  is_string(elem(c, 0)) and is_col3b(elem(c, 1))
+
+  # -----------
+  # hex strings
+  # -----------
+
+  @typedoc "Text color format for 3-bytes as hexadecimal string."
+  @type hex3() :: String.t()
+  defguard is_hex3(h) when is_fix_string(h, 7) and binary_part(h, 0, 1) == "#"
+
+  @typedoc "Text color format for 4-bytes as hexadecimal string."
+  @type hex4() :: String.t()
+  defguard is_hex4(h) when is_fix_string(h, 9) and binary_part(h, 0, 1) == "#"
 
   # ------
   # pixels
@@ -147,6 +159,27 @@ defmodule Exa.Color.Types do
                   :alpha_gray
                 ]
 
+  @typedoc "A component of a color: byte (0..255) or unit float (0.0-1.0)."
+  @type component() :: byte() | E.unit()
+  defguard is_comp(c) when is_byte(c) or is_unit(c)
+
+  @typedoc "The number of components in a tuple."
+  @type ncomp() :: 1..4
+  defguard is_ncomp(n) when is_integer(n) and n > 0 and n < 5
+
+  @typedoc "The 0-based element position of a channel in a color."
+  @type ichan() :: 0..3
+  defguard is_ichan(i) when is_integer(i) and i >= 0 and i < 4
+
+  @typedoc """
+  An alpha input value for a byte may be:
+  - boolean (false -> transparent 0, true -> opaque 255)
+  - bit (0 -> transparent 0, 1 -> opaque 255)
+  - byte 0..255
+  - unit float 0.0-1.0, maps to 0..255
+  """
+  @type alpha_value() :: bool() | E.bit() | byte() | E.unit()
+
   # ---------------
   # weighted blends
   # ---------------
@@ -167,4 +200,93 @@ defmodule Exa.Color.Types do
   """
   @type color_weights() :: [color_weight(), ...]
   defguard is_wcols(wcs) when is_nonempty_list(wcs) and is_wcol(hd(wcs))
+
+  # -------------
+  # pixel mappers
+  # -------------
+
+  @typedoc """
+  A pixel color-color mapping function to transform an image.
+  """
+  @type pixfun() :: (color() -> color())
+
+  @typedoc """
+  A pixel color-color mapping function to transform an image.
+  The input and output pixel types may be different.
+
+  A `nil` source pixel means it defaults to 
+  the pixel type of the input source image.
+
+  A `nil` destination pixel means it defaults to
+  the source pixel type.
+  """
+  @type pixel_fun() ::
+          pixfun()
+          | {
+              src :: E.maybe(pixel()),
+              (color() -> color()),
+              dst :: E.maybe(pixel())
+            }
+  defguard is_pixfun(src, fun, dst)
+           when (is_nil(src) or is_pix(src)) and
+                  (is_nil(dst) or is_pix(dst)) and
+                  is_function(fun, 1)
+
+  # -----------
+  # alpha blend
+  # -----------
+
+  @type blend_func() :: :func_add | :func_sub | :func_rev_sub | :func_min | :func_max
+
+  @type blend_param() ::
+          :zero
+          | :one
+          | :src_color
+          | :one_minus_src_color
+          | :dst_color
+          | :one_minus_dst_color
+          | :const_color
+          | :one_minus_const_color
+          | :src_alpha
+          | :one_minus_src_alpha
+          | :dst_alpha
+          | :one_minus_dst_alpha
+          | :const_alpha
+          | :one_minus_const_alpha
+
+  # const_rgb is only needed for :const_color, :one_minus_const_color
+  # const_alpha is only needed for :const_alpha, :one_minus_const_alpha
+
+  @type blend_mode() :: {
+          func_rgb :: blend_func(),
+          func_a :: blend_func(),
+          param_rgb_src :: blend_param(),
+          param_rgb_dst :: blend_param(),
+          const_rgb :: nil | col3f(),
+          param_a_src :: blend_param(),
+          param_a_dst :: blend_param(),
+          const_a :: nil | col1f()
+        }
+
+  # --------
+  # colormap
+  # --------
+
+  @typedoc "A control point to specify an indexed colormap gradient."
+  @type icol3f() :: {byte(), col3f()}
+
+  @typedoc "A colormap to lookup a 3-byte color for a byte index."
+  @type cmap3b() :: %{byte() => col3b()}
+
+  @typedoc "A colormap to lookup a 4-byte color for a byte index."
+  @type cmap4b() :: %{byte() => col4b()}
+
+  @typedoc "A full colormap with pixel types and 3-byte lookup table."
+  @type colormap3b() :: {:colormap, :index, :rgb, cmap3b()}
+
+  @typedoc "A full colormap with pixel types and 4-byte lookup table."
+  @type colormap4b() :: {:colormap, :index, :rgba, cmap4b()}
+
+  @typedoc "Any 3- or 4-byte colormap."
+  @type colormap() :: colormap3b() | colormap4b()
 end

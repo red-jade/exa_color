@@ -5,11 +5,6 @@ defmodule Exa.Color.CmapTest do
 
   import Exa.Color.Colormap3b
 
-  @filetype_png "png"
-  @png_out_dir ["test", "output", "image", "png"]
-
-  defp png(name), do: Exa.File.join(@png_out_dir, name, @filetype_png)
-
   test "simple" do
     cols =
       Enum.map(0..255, fn i ->

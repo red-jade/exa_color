@@ -12,9 +12,9 @@ defmodule Exa.Color.Col3f do
   alias Exa.Math
   alias Exa.Convert
 
-  alias Exa.Gfx.Color.Col3b
-  alias Exa.Gfx.Color.Colorf
-  alias Exa.Gfx.Color.Col3Name
+  alias Exa.Color.Col3b
+  alias Exa.Color.Colorf
+  alias Exa.Color.Col3Name
 
   @behaviour Colorf
 
@@ -53,7 +53,7 @@ defmodule Exa.Color.Col3f do
   def gray(gray) when is_unit(gray), do: {gray, gray, gray}
 
   @doc "Gray level as a percentage 0..100"
-  @spec gray_pc(E.percent()) :: C.col3b()
+  @spec gray_pc(E.percent()) :: C.col3f()
   def gray_pc(pc) when is_pc(pc), do: gray(Math.unit(pc / 100.0))
 
   # -----------
@@ -137,12 +137,13 @@ defmodule Exa.Color.Col3f do
 
   `Y = 0.299 R + 0.587 G + 0.114 B`
   """
-  @spec luma(C.col3f(), I.pixel3()) :: E.unit()
+  @spec luma(C.col3f(), C.pixel3()) :: E.unit()
   def luma(col, pix \\ :rgb)
-  def luma({r, g, b}, :rgb), do: {0.299 * r + 0.587 * g + 0.114 * b}
+  def luma({r, g, b}, :rgb), do: 0.299 * r + 0.587 * g + 0.114 * b
   def luma({b, g, r}, :bgr), do: luma({r, g, b}, :rgb)
 
-  @spec to_gray(C.col3f(), I.pixel3()) :: C.col3f()
+  @doc "Convert to gray with the same pixel format."
+  @spec to_gray(C.col3f(), C.pixel3()) :: C.col3f()
   def to_gray(c, pix \\ :rgb) when is_col3f(c), do: c |> luma(pix) |> gray()
 
   @doc "Convert datatype with the same pixel format."
@@ -154,7 +155,7 @@ defmodule Exa.Color.Col3f do
   def from_col3b({c1, c2, c3}), do: {Convert.b2f(c1), Convert.b2f(c2), Convert.b2f(c3)}
 
   @doc "To RGB hex."
-  @spec to_hex(C.col3f(), I.pixel3()) :: C.hex3()
+  @spec to_hex(C.col3f(), C.pixel3()) :: C.hex3()
   def to_hex(col, pix \\ :rgb)
   def to_hex({r, g, b}, :rgb), do: "#" <> Convert.f2h(r) <> Convert.f2h(g) <> Convert.f2h(b)
   def to_hex({b, g, r}, :bgr), do: "#" <> Convert.f2h(r) <> Convert.f2h(g) <> Convert.f2h(b)
@@ -169,7 +170,7 @@ defmodule Exa.Color.Col3f do
   end
 
   @doc "Write in CSS RGB value format."
-  @spec to_css(C.col3f(), I.pixel()) :: String.t()
+  @spec to_css(C.col3f(), C.pixel()) :: String.t()
   def to_css(col, pix \\ :rgb)
   def to_css({r, g, b}, :rgb), do: "rgb(#{dp3(r)} #{dp3(g)} #{dp3(b)})"
   def to_css({b, g, r}, :bgr), do: to_css({r, g, b}, :rgb)

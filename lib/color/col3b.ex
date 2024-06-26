@@ -103,11 +103,12 @@ defmodule Exa.Color.Col3b do
 
   `Y = 0.299 R + 0.587 G + 0.114 B`
   """
-  @spec luma(C.col3b(), C.pixel3()) :: E.unit()
+  @spec luma(C.col3b(), C.pixel3()) :: byte()
   def luma(col, pix \\ :rgb)
   def luma({ir, ig, ib}, :rgb), do: Convert.f2b((0.299 * ir + 0.587 * ig + 0.114 * ib) / 255.0)
   def luma({ib, ig, ir}, :bgr), do: luma({ir, ig, ib}, :rgb)
 
+  @doc "Convert to gray with the same pixel format."
   @spec to_gray(C.col3b(), C.pixel3()) :: C.col3b()
   def to_gray(c, pix \\ :rgb) when is_col3b(c), do: c |> luma(pix) |> gray()
 
@@ -121,7 +122,7 @@ defmodule Exa.Color.Col3b do
 
   @doc "To RGB hex."
   @spec to_hex(C.col3b(), C.pixel3()) :: C.hex3()
-  def to_hex({ir, ig, ib}), do: "#" <> Convert.b2h(ir) <> Convert.b2h(ig) <> Convert.b2h(ib)
+  def to_hex({ir, ig, ib}, :rgb), do: "#" <> Convert.b2h(ir) <> Convert.b2h(ig) <> Convert.b2h(ib)
   def to_hex({ib, ig, ir}, :bgr), do: to_hex({ir, ig, ib}, :rgb)
 
   @doc "From RGB hex."
@@ -155,25 +156,22 @@ defmodule Exa.Color.Col3b do
 
   # TODO - note the pixel format does not affect thesd
   #        unless the src and dst pixels are different
-  #        then need 2 args !!
+  #        then need 2 args 
+
+  @c3 [:rgb, :bgr]
 
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(col, pix \\ :rgb), do: append_bin(<<>>, pix, col)
+  def to_bin(col, pix \\ :rgb) when pix in @c3, do: append_bin(<<>>, pix, col)
 
   @impl Colorb
-  def append_bin(buf, pix \\ :rgb, col)
-
-  def append_bin(buf, _pix, {c1, c2, c3}) when is_binary(buf), do: <<buf::binary, c1, c2, c3>>
-  # def append_bin(buf, :rgb, {ir, ig, ib}) when is_binary(buf), do: <<buf::binary, ir, ig, ib>>
-  # def append_bin(buf, :bgr, {ib, ig, ir}) when is_binary(buf), do: <<buf::binary, ib, ig, ir>>
+  def append_bin(buf, pix \\ :rgb, {c1, c2, c3}) when pix in @c3 and is_binary(buf),
+    do: <<buf::binary, c1, c2, c3>>
 
   @impl Colorb
-  def from_bin(buf, pix \\ :rgb)
-  def from_bin(<<c1, c2, c3, rest::binary>>, _pix), do: {{c1, c2, c3}, rest}
-  # def from_bin(<<ir, ig, ib, rest::binary>>, :rgb), do: {{ir, ig, ib}, rest}
-  # def from_bin(<<ib, ig, ir, rest::binary>>, :bgr), do: {{ib, ig, ir}, rest}
+  def from_bin(<<c1, c2, c3, rest::binary>>, pix \\ :rgb) when pix in @c3,
+    do: {{c1, c2, c3}, rest}
 
   # -----------------
   # private functions

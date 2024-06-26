@@ -1,10 +1,10 @@
-defmodule Exa.Space.MixProject do
+defmodule Exa.Color.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :exa_space,
-      name: "Exa Space",
+      app: :exa_color,
+      name: "Exa Color",
       version: "0.1.0",
       elixir: "~> 1.15",
       erlc_options: [:verbose, :report_errors, :report_warnings, :export_all],

@@ -1,6 +1,7 @@
 defmodule Exa.Color.Col4f do
   @moduledoc "A 4-component floating-point RGBA color."
 
+  require Logger
   use Exa.Constants
 
   import Exa.Types
@@ -34,7 +35,7 @@ defmodule Exa.Color.Col4f do
   The `dst_pix` type is assumed to also represent the original 3-byte order.
   For example, `dst_pix` `:rgba` means `src_pix` `:rgb`.
   """
-  @spec new(C.col3f(), I.alpha_value(), I.pixel4()) :: C.col4f()
+  @spec new(C.col3f(), C.alpha_value(), C.pixel4()) :: C.col4f()
   def new(col, a, pix \\ :rgba)
   def new({r, g, b}, a, :rgba), do: {r, g, b, a1f(a)}
   def new({r, g, b}, a, :argb), do: {a1f(a), r, g, b}
@@ -42,15 +43,21 @@ defmodule Exa.Color.Col4f do
   def new({b, g, r}, a, :abgr), do: {a1f(a), b, g, r}
 
   @doc "Convert input alpha value to a unit float (0.0-1.0)."
-  @spec a1f(I.alpha_value()) :: E.unit()
+  @spec a1f(C.alpha_value()) :: E.unit()
+
   def a1f(false), do: 0.0
   def a1f(true), do: 1.0
   def a1f(0), do: 0.0
   def a1f(1), do: 1.0
   def a1f(a) when is_byte(a), do: Convert.b2f(a)
   def a1f(a) when is_float(a), do: Math.unit(a)
-  def a1f(a), do: raise(ArgumentError, message: "Illegal alpha value '#{a}'")
 
+  def a1f(a) do 
+    msg = "Illegal alpha value '#{a}'"
+    Logger.error(msg)
+    raise ArgumentError, message: msg
+  end
+ 
   # --------------
   # public methods
   # --------------
@@ -62,43 +69,12 @@ defmodule Exa.Color.Col4f do
   end
 
   @doc "Remove the alpha channel, keeping the same color order."
-  @spec to_col3f(C.col4f(), I.pixel4()) :: C.col3f()
+  @spec to_col3f(C.col4f(), C.pixel4()) :: C.col3f()
   def to_col3f(col, pix \\ :rgba)
   def to_col3f({r, g, b, _}, :rgba), do: {r, g, b}
   def to_col3f({b, g, r, _}, :bgra), do: {b, g, r}
   def to_col3f({_, r, g, b}, :argb), do: {r, g, b}
   def to_col3f({_, b, g, r}, :abgr), do: {b, g, r}
-
-  # TODO - alpha blending
-
-  # @doc """
-  # A mean blend of a list of colors (optionally weighted).
-
-  # If the list is just colors, then the result is divided by the number of colors.
-
-  # If the list is weighted, the sum of weights should equal 1.0.
-  # The final color values are clamped to be in the range (0.0,1.0).
-  # """
-  # @spec blend(C.color_weights() | C.colors3()) :: C.col3f()
-
-  # def blend(wcols) when is_wcols(wcols) do
-  #   wcols
-  #   |> Enum.reduce(black(), fn
-  #     {w, col}, sum when is_float(w) and is_col3f(col) -> add(sum, mul(w, col))
-  #     {w, col}, sum when is_float(w) and is_col3b(col) -> add(sum, mul(w, Col3b.to_col3f(col)))
-  #   end)
-  #   |> clamp()
-  # end
-
-  # def blend(cols) when is_colors3(cols) do
-  #   mul(
-  #     1.0 / length(cols),
-  #     Enum.reduce(cols, black(), fn
-  #       col, sum when is_col3f(col) -> add(sum, col)
-  #       col, sum when is_col3b(col) -> add(sum, Col3b.to_col3f(col))
-  #     end)
-  #   )
-  # end
 
   @doc "Convert datatype with the same pixel format."
   @spec to_col4b(C.col4f()) :: C.col4b()
@@ -111,7 +87,7 @@ defmodule Exa.Color.Col4f do
     do: {Convert.b2f(c1), Convert.b2f(c2), Convert.b2f(c3), Convert.b2f(c4)}
 
   @doc "To RGBA hex."
-  @spec to_hex(C.col4f(), I.pixel4()) :: C.hex4()
+  @spec to_hex(C.col4f(), C.pixel4()) :: C.hex4()
   def to_hex(col, pix \\ :rgba)
 
   def to_hex({r, g, b, a}, :rgba),
@@ -127,7 +103,7 @@ defmodule Exa.Color.Col4f do
     do: "#" <> Convert.f2h(r) <> Convert.f2h(g) <> Convert.f2h(b) <> Convert.f2h(a)
 
   @doc "From RGBA hex."
-  @spec from_hex(C.hex4(), I.pixel4()) :: C.col4f()
+  @spec from_hex(C.hex4(), C.pixel4()) :: C.col4f()
   def from_hex(hex, pix \\ :rgba)
 
   def from_hex("#" <> hex, :rgba) when is_fix_string(hex, 8) do
@@ -155,7 +131,7 @@ defmodule Exa.Color.Col4f do
   end
 
   @doc "Write in CSS RGB value format."
-  @spec to_css(C.col3f(), I.pixel()) :: String.t()
+  @spec to_css(C.col4f(), C.pixel()) :: String.t()
   def to_css(col, pix \\ :rgba)
 
   def to_css({r, g, b, a}, :rgba),
@@ -171,13 +147,6 @@ defmodule Exa.Color.Col4f do
 
   @spec dp3(float()) :: float()
   defp dp3(x) when is_float(x), do: Float.round(x, 3)
-
-  # @spec mul(float(), C.col4f()) :: C.col4f()
-  # defp mul(x, {c1, c2, c3, c4}), do: {x * c1, x * c2, x * c3, x * c4}
-
-  # add two colors with the same pixel format."
-  # @spec add(C.col4f(), C.col4f()) :: C.col4f()
-  # defp add({c1, c2, c3, c4}, {d1, d2, d3, d4}), do: {c1 + d1, c2 + d2, c3 + d3, c4 + d4}
 
   @spec clamp({float(), float(), float(), float()}) :: C.col4f()
   def clamp({c1, c2, c3, c4})

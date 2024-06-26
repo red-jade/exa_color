@@ -21,24 +21,24 @@ defmodule Exa.Color.Col1f do
   # constants
   # ---------
 
-  @spec black() :: G.col1f()
+  @spec black() :: C.col1f()
   def black(), do: 0.0
 
-  @spec white() :: G.col1f()
+  @spec white() :: C.col1f()
   def white(), do: 1.0
 
-  @spec gray() :: G.col1f()
+  @spec gray() :: C.col1f()
   def gray(), do: 0.5
 
   @doc "Gray level as a percentage 0..100"
-  @spec gray_pc(E.percent()) :: G.col1f()
+  @spec gray_pc(E.percent()) :: C.col1f()
   def gray_pc(pc) when is_pc(pc), do: Math.unit(pc / 100.0)
 
   # -----------
   # constructor
   # -----------
 
-  @spec new(float()) :: G.col1f()
+  @spec new(float()) :: C.col1f()
   def new(col) when is_float(col), do: Math.unit(col)
 
   # --------------
@@ -48,29 +48,29 @@ defmodule Exa.Color.Col1f do
   # equals? use ==
 
   @doc "Reduce value."
-  @spec dark(G.col1f()) :: G.col1f()
+  @spec dark(C.col1f()) :: C.col1f()
   def dark(col) when is_col1f(col), do: 0.5 * col
 
   @doc "Increase saturation."
-  @spec pale(G.col1f()) :: G.col1f()
+  @spec pale(C.col1f()) :: C.col1f()
   def pale(col) when is_col1f(col), do: 0.5 * (1.0 + col)
 
   @doc """
   Linear interpolation between two colors.
   The parameter _x_ is a value between 0.0 (color1) and 1.0 (color2) 
   """
-  @spec lerp(G.col1f(), E.unit(), G.col1f()) :: G.col1f()
+  @spec lerp(C.col1f(), E.unit(), C.col1f()) :: C.col1f()
   def lerp(col1, x, col2) when is_col1f(col1) and is_col1f(col2) and is_unit(x) do
     Math.lerp(col1, x, col2)
   end
 
-  @spec to_col3f(G.col1f()) :: G.col3f()
+  @spec to_col3f(C.col1f()) :: C.col3f()
   def to_col3f(col) when is_col1f(col), do: Col3f.gray(col)
 
-  @spec to_col1b(G.col1f()) :: G.col1b()
+  @spec to_col1b(C.col1f()) :: C.col1b()
   def to_col1b(col) when is_col1f(col), do: Convert.f2b(col)
 
-  @spec to_col3b(G.col1f()) :: G.col3b()
+  @spec to_col3b(C.col1f()) :: C.col3b()
   def to_col3b(col) when is_col1f(col), do: col |> Convert.f2b() |> Col3b.gray()
 
   @behaviour Colorf

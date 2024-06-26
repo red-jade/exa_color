@@ -1,5 +1,7 @@
 defmodule Exa.Color.ColorSpace do
-  @moduledoc "Conversions for Gfx color spaces."
+  @moduledoc "Conversions for color spaces."
+
+  import Exa.Types
 
   import Exa.Color.Types
   alias Exa.Color.Types, as: C
@@ -7,10 +9,11 @@ defmodule Exa.Color.ColorSpace do
   alias Exa.Math
 
   alias Exa.Color.Col3f
+  alias Exa.Color.Pixel
 
   @doc """
   Convert the format of an HSL color. 
-  The input is a the common CSS format of integer values:
+  The input is the common CSS format of integer values:
   - H angle degrees 0-360 
   - S percent 0-100
   - L percent 0-100
@@ -28,14 +31,17 @@ defmodule Exa.Color.ColorSpace do
   end
 
   @doc """
-  HSL to RGB color model conversion.
-  The input is a the common CSS format of integer values:
+  Convert the format of an HSL color. 
+
+  The inputs are normalized unit color values (0.0-1.0).
+
+  The output is a the common CSS format of integer values:
   - H angle degrees 0-360 
   - S percent 0-100
   - L percent 0-100
   """
   @spec unit2hsl(C.col3f()) :: C.hsl3i()
-  def unit2hsl({h, s, l}) when is_float(h) and is_float(s) and is_float(l) do
+  def unit2hsl({h, s, l}) when is_unit(h) and is_unit(s) and is_unit(l) do
     {
       trunc(360.0 * Math.unit(h)),
       trunc(100.0 * Math.unit(s)),
@@ -45,6 +51,7 @@ defmodule Exa.Color.ColorSpace do
 
   @doc """
   RGB to HSL color model conversion.
+
   The result is a normalized unit 3-component color,
   not the common CSS format of:
   - H angle degrees 0-360 
@@ -78,6 +85,7 @@ defmodule Exa.Color.ColorSpace do
 
   @doc """
   HSL to RGB color model conversion.
+
   The input is a normalized unit 3-component color,
   with values in the range (0.0-1.0).
   """
