@@ -1,5 +1,5 @@
 defmodule Exa.Color.Types do
-  @moduledoc "Types and guards for the colors utilities."
+  @moduledoc "Types and guards for color utilities."
 
   import Exa.Types
   alias Exa.Types, as: E
@@ -10,14 +10,17 @@ defmodule Exa.Color.Types do
 
   # bytes
 
+  @doc "A 1-component byte color: grayscale, index or alpha."
   @type col1b() :: byte()
   defguard is_col1b(c) when is_byte(c)
 
+  @doc "A 3-component byte color: RGB, BGR."
   @type col3b() :: {byte(), byte(), byte()}
   defguard is_col3b(c)
            when is_fix_tuple(c, 3) and
                   is_byte(elem(c, 0)) and is_byte(elem(c, 1)) and is_byte(elem(c, 2))
 
+  @doc "A 4-component byte color: RGBA, ARGB, BGRA, ABGR."
   @type col4b() :: {byte(), byte(), byte(), byte()}
   defguard is_col4b(c)
            when is_fix_tuple(c, 4) and
@@ -26,23 +29,28 @@ defmodule Exa.Color.Types do
 
   # floats 
 
+  @doc "A 1-component float color: grayscale or alpha."
   @type col1f() :: E.unit()
   defguard is_col1f(c) when is_unit(c)
 
+  @doc "A 3-component float color: RGB or BGR."
   @type col3f() :: {E.unit(), E.unit(), E.unit()}
   defguard is_col3f(c)
            when is_fix_tuple(c, 3) and
                   is_unit(elem(c, 0)) and is_unit(elem(c, 1)) and is_unit(elem(c, 2))
 
+  @doc "A list of 3-component float colors."
   @type cols3f() :: [col3f(), ...]
   defguard is_cols3f(cs) when is_list(cs) and cs != [] and is_col3f(hd(cs))
 
+  @doc "A 4-component float color: RGBA, ARGB, BGRA, ABGR."
   @type col4f() :: {E.unit(), E.unit(), E.unit(), E.unit()}
   defguard is_col4f(c)
            when is_fix_tuple(c, 4) and
                   is_unit(elem(c, 0)) and is_unit(elem(c, 1)) and
                   is_unit(elem(c, 2)) and is_unit(elem(c, 3))
 
+  @doc "A list of 4-component float colors."
   @type cols4f() :: [col4f(), ...]
   defguard is_cols4f(cs) when is_list(cs) and cs != [] and is_col4f(hd(cs))
 
@@ -69,26 +77,31 @@ defmodule Exa.Color.Types do
   defguard is_color(c) when is_colorb(c) or is_colorf(c)
   defguard is_color(c, n) when is_colorb(c, n) or is_colorf(c, n)
 
-  @typedoc "Any 3-component color."
-  @type color3() :: col3f() | col3b()
-  defguard is_color3(c) when is_col3f(c) or is_col3b(c)
+  # component categories
 
-  @type colors3() :: [color3(), ...]
-  defguard is_colors3(cs) when is_nonempty_list(cs) and is_color3(hd(cs))
-
-  @typedoc "Any 4-component color."
-  @type color4() :: col4f() | col4b()
-  defguard is_color4(c) when is_col4f(c) or is_col4b(c)
-
-  @type colors4() :: [color4(), ...]
-  defguard is_colors4(cs) when is_nonempty_list(cs) and is_color4(hd(cs))
-
-  @typedoc "Any 1-component color."
+  @typedoc "Any 1-component color: grayscale, index, alpha."
   @type color1() :: col1f() | col1b()
   defguard is_color1(c) when is_col1f(c) or is_col1b(c)
 
+  @typedoc "A list of 1-component colors."
   @type colors1() :: [color1(), ...]
   defguard is_colors1(cs) when is_nonempty_list(cs) and is_color1(hd(cs))
+
+  @typedoc "Any 3-component color: RGB or BGR."
+  @type color3() :: col3f() | col3b()
+  defguard is_color3(c) when is_col3f(c) or is_col3b(c)
+
+  @typedoc "A list of 3-component colors."
+  @type colors3() :: [color3(), ...]
+  defguard is_colors3(cs) when is_nonempty_list(cs) and is_color3(hd(cs))
+
+  @typedoc "Any 4-component color: RGBA, ARGB, BGRA, ABGR."
+  @type color4() :: col4f() | col4b()
+  defguard is_color4(c) when is_col4f(c) or is_col4b(c)
+
+  @typedoc "A list of 4-component colors."
+  @type colors4() :: [color4(), ...]
+  defguard is_colors4(cs) when is_nonempty_list(cs) and is_color4(hd(cs))
 
   # ------------
   # color models
@@ -106,6 +119,7 @@ defmodule Exa.Color.Types do
   # named colors
   # ------------
 
+  @typedoc "Named color has a name and a 3-byte RGB color."
   @type col3name() :: {String.t(), col3b()}
   defguard is_col3name(c)
            when is_fix_tuple(c, 2) and
@@ -147,16 +161,16 @@ defmodule Exa.Color.Types do
   defguard is_pix(px)
            when px in [
                   :gray,
+                  :index,
                   :rgb,
                   :rgba,
-                  :alpha,
-                  :index,
                   :bgr,
                   :argb,
                   :abgr,
                   :bgra,
                   :gray_alpha,
-                  :alpha_gray
+                  :alpha_gray,
+                  :alpha
                 ]
 
   @typedoc "A component of a color: byte (0..255) or unit float (0.0-1.0)."
@@ -167,7 +181,7 @@ defmodule Exa.Color.Types do
   @type ncomp() :: 1..4
   defguard is_ncomp(n) when is_integer(n) and n > 0 and n < 5
 
-  @typedoc "The 0-based element position of a channel in a color."
+  @typedoc "The 0-based index of a channel in a color."
   @type ichan() :: 0..3
   defguard is_ichan(i) when is_integer(i) and i >= 0 and i < 4
 
@@ -194,10 +208,7 @@ defmodule Exa.Color.Types do
            when is_fix_tuple(wc, 2) and
                   is_weight(elem(wc, 0)) and is_color(elem(wc, 1))
 
-  @typedoc """
-  A list of weighted colors.
-  A color without a factor is assumed to have weight 1.0.
-  """
+  @typedoc "A list of weighted colors."
   @type color_weights() :: [color_weight(), ...]
   defguard is_wcols(wcs) when is_nonempty_list(wcs) and is_wcol(hd(wcs))
 
@@ -206,12 +217,12 @@ defmodule Exa.Color.Types do
   # -------------
 
   @typedoc """
-  A pixel color-color mapping function to transform an image.
+  A color-color mapping function.
   """
-  @type pixfun() :: (color() -> color())
+  @type colfun() :: (color() -> color())
 
   @typedoc """
-  A pixel color-color mapping function to transform an image.
+  A pixel color-color mapping stage to transform an image.
   The input and output pixel types may be different.
 
   A `nil` source pixel means it defaults to 
@@ -221,12 +232,8 @@ defmodule Exa.Color.Types do
   the source pixel type.
   """
   @type pixel_fun() ::
-          pixfun()
-          | {
-              src :: E.maybe(pixel()),
-              (color() -> color()),
-              dst :: E.maybe(pixel())
-            }
+          colfun()
+          | {src :: E.maybe(pixel()), colfun(), dst :: E.maybe(pixel())}
   defguard is_pixfun(src, fun, dst)
            when (is_nil(src) or is_pix(src)) and
                   (is_nil(dst) or is_pix(dst)) and
@@ -235,6 +242,8 @@ defmodule Exa.Color.Types do
   # -----------
   # alpha blend
   # -----------
+
+  # slow implementation of the OpenGL alpha blending function
 
   @type blend_func() :: :func_add | :func_sub | :func_rev_sub | :func_min | :func_max
 
@@ -254,7 +263,7 @@ defmodule Exa.Color.Types do
           | :const_alpha
           | :one_minus_const_alpha
 
-  # const_rgb is only needed for :const_color, :one_minus_const_color
+  # const_rgb   is only needed for :const_color, :one_minus_const_color
   # const_alpha is only needed for :const_alpha, :one_minus_const_alpha
 
   @type blend_mode() :: {

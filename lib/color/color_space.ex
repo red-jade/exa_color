@@ -7,8 +7,6 @@ defmodule Exa.Color.ColorSpace do
   alias Exa.Color.Types, as: C
 
   alias Exa.Math
-
-  alias Exa.Color.Col3f
   alias Exa.Color.Pixel
 
   @doc """
@@ -59,8 +57,7 @@ defmodule Exa.Color.ColorSpace do
   - L percent 0-100
   """
   @spec rgb2hsl(C.col3f()) :: C.col3f()
-  def rgb2hsl(col) when is_col3f(col) do
-    {r, g, b} = c = Col3f.clamp(col)
+  def rgb2hsl({r, g, b} = c) when is_col3f(c) do
     {vmax, maxchan} = Pixel.maximum(c, :rgb)
     {vmin, _inchan} = Pixel.minimum(c, :rgb)
     d = vmax - vmin
@@ -90,9 +87,7 @@ defmodule Exa.Color.ColorSpace do
   with values in the range (0.0-1.0).
   """
   @spec hsl2rgb(C.col3f()) :: C.col3f()
-  def hsl2rgb(col) when is_col3f(col) do
-    {h, s, l} = Col3f.clamp(col)
-
+  def hsl2rgb({h, s, l} = c) when is_col3f(c) do
     if s == 0.0 do
       {l, l, l}
     else

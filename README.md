@@ -23,18 +23,24 @@ The design prefers plain (untagged) tuples
 for compact size and efficient O(1) access time (contiguous in memory).
 
 Scalar 1-component colors are simple atomic types.
-Multi-component colors Colors use tuples.
+Multi-component colors use tuples.
 
 Colors used for images have a separate pixel type 
 to label the components.
 The pixel format tag is not embedded in every color tuple.
 
+CSS colors are loaded from a text file on demand.
+The look-up table is stored in the process dictionary.
+Every process that accesses CSS colors will have a copy.
+
 ### Features
 
-- Colors: 1,3,4 b,f
+- Colors: 1,3,4 byte,float
 - Color models: RGB, HSL
 - Color maps: index => col3b
-- Utilities: b,f
+- Named CSS colors
+- Pixels and components
+- Conversion utilities: byte,float
 
 ### License
 

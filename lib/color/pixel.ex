@@ -11,8 +11,6 @@ defmodule Exa.Color.Pixel do
   import Exa.Color.Types
   alias Exa.Color.Types, as: C
 
-  alias Exa.Math
-
   alias Exa.Color.Col1b
   alias Exa.Color.Col3b
   alias Exa.Color.Col4b
@@ -45,56 +43,56 @@ defmodule Exa.Color.Pixel do
   def ncomp(c) when is_number(c), do: 1
   def ncomp(c) when is_tuple(c) and is_number(elem(c, 0)), do: tuple_size(c)
 
-  @doc "Get the 0-based component of a channel in a pixel."
-  @spec comp(C.pixel(), C.channel()) :: C.ichan()
+  # get the 0-based component of a channel in a pixel
+  @spec ichan(C.pixel(), C.channel()) :: C.ichan()
 
-  def comp(:gray, :gray), do: 0
-  def comp(:index, :index), do: 0
+  defp ichan(:gray, :gray), do: 0
+  defp ichan(:index, :index), do: 0
 
-  def comp(:gray_alpha, :gray), do: 0
-  def comp(:alpha_gray, :gray), do: 1
-  def comp(:gray_alpha, :a), do: 1
-  def comp(:alpha_gray, :a), do: 0
+  defp ichan(:gray_alpha, :gray), do: 0
+  defp ichan(:alpha_gray, :gray), do: 1
+  defp ichan(:gray_alpha, :a), do: 1
+  defp ichan(:alpha_gray, :a), do: 0
 
-  def comp(:rgb, :r), do: 0
-  def comp(:rgb, :g), do: 1
-  def comp(:rgb, :b), do: 2
+  defp ichan(:rgb, :r), do: 0
+  defp ichan(:rgb, :g), do: 1
+  defp ichan(:rgb, :b), do: 2
 
-  def comp(:bgr, :b), do: 0
-  def comp(:bgr, :g), do: 1
-  def comp(:bgr, :r), do: 2
+  defp ichan(:bgr, :b), do: 0
+  defp ichan(:bgr, :g), do: 1
+  defp ichan(:bgr, :r), do: 2
 
-  def comp(:rgba, :r), do: 0
-  def comp(:rgba, :g), do: 1
-  def comp(:rgba, :b), do: 2
-  def comp(:rgba, :a), do: 3
+  defp ichan(:rgba, :r), do: 0
+  defp ichan(:rgba, :g), do: 1
+  defp ichan(:rgba, :b), do: 2
+  defp ichan(:rgba, :a), do: 3
 
-  def comp(:bgra, :b), do: 0
-  def comp(:bgra, :g), do: 1
-  def comp(:bgra, :r), do: 2
-  def comp(:bgra, :a), do: 3
+  defp ichan(:bgra, :b), do: 0
+  defp ichan(:bgra, :g), do: 1
+  defp ichan(:bgra, :r), do: 2
+  defp ichan(:bgra, :a), do: 3
 
-  def comp(:argb, :a), do: 0
-  def comp(:argb, :r), do: 1
-  def comp(:argb, :g), do: 2
-  def comp(:argb, :b), do: 3
+  defp ichan(:argb, :a), do: 0
+  defp ichan(:argb, :r), do: 1
+  defp ichan(:argb, :g), do: 2
+  defp ichan(:argb, :b), do: 3
 
-  def comp(:abgr, :a), do: 0
-  def comp(:abgr, :b), do: 1
-  def comp(:abgr, :g), do: 2
-  def comp(:abgr, :r), do: 3
+  defp ichan(:abgr, :a), do: 0
+  defp ichan(:abgr, :b), do: 1
+  defp ichan(:abgr, :g), do: 2
+  defp ichan(:abgr, :r), do: 3
 
-  @doc "Get the channel list for a pixel."
+  # get the channel list for a pixel
   @spec channels(C.pixel()) :: tuple()
-  def channels(:gray), do: {:gray}
-  def channels(:index), do: {:index}
-  def channels(:alpha), do: {:a}
-  def channels(:rgb), do: {:r, :g, :b}
-  def channels(:bgr), do: {:b, :g, :r}
-  def channels(:rgba), do: {:r, :g, :b, :a}
-  def channels(:bgra), do: {:b, :g, :r, :a}
-  def channels(:argb), do: {:a, :r, :g, :b}
-  def channels(:abgr), do: {:a, :b, :g, :r}
+  defp channels(:gray), do: {:gray}
+  defp channels(:index), do: {:index}
+  defp channels(:alpha), do: {:a}
+  defp channels(:rgb), do: {:r, :g, :b}
+  defp channels(:bgr), do: {:b, :g, :r}
+  defp channels(:rgba), do: {:r, :g, :b, :a}
+  defp channels(:bgra), do: {:b, :g, :r, :a}
+  defp channels(:argb), do: {:a, :r, :g, :b}
+  defp channels(:abgr), do: {:a, :b, :g, :r}
 
   @doc "Test if a color format is compatible with a pixel type."
   @spec valid!(C.pixel(), C.color()) :: :ok
@@ -104,98 +102,89 @@ defmodule Exa.Color.Pixel do
       Logger.error(msg)
       raise ArgumentError, message: msg
     end
+
     :ok
   end
 
-  # --------------
-  # channel access 
-  # --------------
+  # ----------------
+  # component access 
+  # ----------------
+
+  @grays [:gray, :alpha_gray, :gray_alpha]
+
+  @alphas [:alpha_gray, :gray_alpha, :rgba, :argb, :bgra, :abgr]
+
+  @rgbs [:rgb, :bgr, :rgba, :argb, :bgra, :abgr]
 
   @spec component(C.color(), C.pixel(), C.channel()) :: C.component()
-  def component(col, pix, chan), do: numtup(col, comp(pix, chan))
+  def component(col, pix, chan) do
+    case ichan(pix, chan) do
+      0 when is_number(col) -> col
+      i when is_tuple(col) and i >= 0 and i < tuple_size(col) -> elem(col, i)
+    end
+  end
 
   # rgb always in tuples
 
   @spec r(C.color(), C.pixel()) :: C.component()
-  def r(col, pix), do: elem(col, comp(pix, :r))
+  def r(col, pix) when pix in @rgbs, do: component(col, pix, :r)
 
   @spec g(C.color(), C.pixel()) :: C.component()
-  def g(col, pix), do: elem(col, comp(pix, :g))
+  def g(col, pix) when pix in @rgbs, do: component(col, pix, :g)
 
   @spec b(C.color(), C.pixel()) :: C.component()
-  def b(col, pix), do: elem(col, comp(pix, :b))
+  def b(col, pix) when pix in @rgbs, do: component(col, pix, :b)
 
   # index is only available in index pixel
   # an index pixel is always a scalar (not a tuple)
 
-  @spec index(C.color(), C.pixel()) :: C.component()
-  def index(col, :index) when is_integer(col), do: col
+  @spec index(C.col1b(), C.pixel()) :: C.component()
+  def index(col, :index) when is_byte(col), do: col
 
-  # gray can be scalar or tuple (gray alpha)
-  # alpha can be scalar or tuple 
-
-  @grays [:gray, :alpha_gray, :gray_alpha]
+  # gray and alpha can be scalar or tuple 
 
   @spec gray(C.color(), C.pixel()) :: C.component()
-  def gray(col, pix) when pix in @grays, do: numtup(col, comp(pix, :gray))
-
-  @alphas [:alpha_gray, :gray_alpha, :rgba, :argb, :bgra, :abgr]
+  def gray(col, pix) when pix in @grays, do: component(col, pix, :gray)
 
   @spec a(C.color(), C.pixel()) :: C.component()
-  def a(col, pix) when pix in @alphas, do: numtup(col, comp(pix, :a))
-
-  # access a scalar or tuple pixel
-  @spec numtup(number() | tuple(), E.index0()) :: number()
-  defp numtup(col, i) when is_tuple(col) and i >= 0 and i < tuple_size(col), do: elem(col, i)
-  defp numtup(col, 0) when is_number(col), do: col
+  def a(col, pix) when pix in @alphas, do: component(col, pix, :a)
 
   # ----------------
   # add/remove alpha
   # ----------------
 
-  @doc """
-  Get the alpha value from a color.
+  # Get the float alpha value from a color.
 
-  The alpha component can be unit float or byte.
-  If the color is 2-component or 4-component 
-  then the actual alpha value is returned.
-  If the color is a grayscale (1-component) or RGB (3-component)
-  then the alpha defaults to 1.0.
-  """
-  @spec get_alpha(C.color(), C.pixel()) :: E.unit()
-  def get_alpha(gray, :gray) when is_unit(gray), do: 1.0
-  def get_alpha(gray, :gray) when is_byte(gray), do: 255
-  def get_alpha({_gray, a}, :gray_alpha), do: a
-  def get_alpha({a, _gray}, :alpha_gray), do: a
-  def get_alpha({r, _g, _b}, :rgb) when is_unit(r), do: 1.0
-  def get_alpha({r, _g, _b}, :rgb) when is_byte(r), do: 255
-  def get_alpha({b, _g, _r}, :bgr) when is_unit(b), do: 1.0
-  def get_alpha({b, _g, _r}, :bgr) when is_byte(b), do: 255
-  def get_alpha({_r, _g, _b, a}, :rgba), do: a
-  def get_alpha({a, _r, _g, _b}, :argb), do: a
-  def get_alpha({_b, _g, _r, a}, :bgra), do: a
-  def get_alpha({a, _b, _g, _r}, :abgr), do: a
+  # The alpha component can be unit float or byte.
 
-  @doc """
-  Remove the alpha value to create an opaque color.
-  The given pixel shape is the original src pixel shape.
-  The final color will have the same order of color components.
-  The components can be floats or bytes.
+  # If the color is 2-component or 4-component 
+  # then the actual alpha value is returned.
 
-  The alpha is not replaced, it is removed.
-  An 4-component color will become 3-component.
-  A 2-component color will become 1-component (scalar).
-  """
-  @spec del_alpha(C.color(), C.pixel()) :: C.color()
-  def del_alpha(gray, :gray), do: gray
-  def del_alpha(col, :rgb), do: col
-  def del_alpha(col, :bgr), do: col
-  def del_alpha({gray, _a}, :gray_alpha), do: gray
-  def del_alpha({_a, gray}, :alpha_gray), do: gray
-  def del_alpha({r, g, b, _a}, :rgba), do: {r, g, b}
-  def del_alpha({_a, r, g, b}, :argb), do: {r, g, b}
-  def del_alpha({b, g, r, _a}, :bgra), do: {b, g, r}
-  def del_alpha({_a, b, g, r}, :abgr), do: {b, g, r}
+  # If the color is a grayscale (1-component) or RGB/BGR (3-component)
+  # then the alpha defaults to 1.0.
+  @spec get_alpha(C.color(), C.pixel()) :: C.col1f()
+  defp get_alpha(col, pix) when pix in @alphas, do: col |> component(pix, :a) |> to_col1f()
+  defp get_alpha(_, _), do: 1.0
+
+  # Remove the alpha value to create an opaque color.
+
+  # The given pixel shape is the original src pixel shape.
+  # The final color will have the same order of color components.
+  # The components can be floats or bytes.
+
+  # The alpha is not replaced, it is removed.
+  # An 4-component color will become 3-component.
+  # A 2-component color will become 1-component (scalar).
+  @spec del_alpha(C.color(), C.pixel()) :: C.col3f()
+  # defp del_alpha(gray, :gray), do: to_col1f(gray)
+  defp del_alpha(col, :rgb), do: to_col3f(col)
+  defp del_alpha(col, :bgr), do: to_col3f(col)
+  defp del_alpha({r, g, b, _a}, :rgba), do: to_col3f({r, g, b})
+  defp del_alpha({_a, r, g, b}, :argb), do: to_col3f({r, g, b})
+  defp del_alpha({b, g, r, _a}, :bgra), do: to_col3f({r, g, b})
+  defp del_alpha({_a, b, g, r}, :abgr), do: to_col3f({r, g, b})
+  # defp del_alpha({gray, _a}, :gray_alpha), do: to_col1f(gray)
+  # defp del_alpha({_a, gray}, :alpha_gray), do: to_col1f(gray)
 
   @doc """
   Add an alpha value to create an expanded color.
@@ -236,6 +225,16 @@ defmodule Exa.Color.Pixel do
   def to_colorf(c) when is_col3f(c), do: c
   def to_colorf(c) when is_col4b(c), do: Col4b.to_col4f(c)
   def to_colorf(c) when is_col4f(c), do: c
+
+  # narrow version to keep dialyzer happy
+  @spec to_col1f(C.col1b() | C.col1f()) :: C.col1f()
+  defp to_col1f(c) when is_col1f(c), do: c
+  defp to_col1f(c) when is_col1b(c), do: Col1b.to_col1f(c)
+
+  # narrow version to keep dialyzer happy
+  @spec to_col3f(C.col3b() | C.col3f()) :: C.col3f()
+  defp to_col3f(c) when is_col3f(c), do: c
+  defp to_col3f(c) when is_col3b(c), do: Col3b.to_col3f(c)
 
   @doc "Convert any color to byte format."
   @spec to_colorb(C.color()) :: C.colorb()
@@ -320,6 +319,7 @@ defmodule Exa.Color.Pixel do
 
   The initial implementation is just a linear pipeline of arity 1 functions.
   """
+  @spec compile([C.pixel_fun(), ...]) :: C.pixel_fun()
   def compile([{first_src, _, _} | _] = pixfuns) do
     {funs, last_pix} =
       Enum.reduce(pixfuns, {[], first_src}, fn {src, fun, dst}, {funs, prev} ->
@@ -340,6 +340,17 @@ defmodule Exa.Color.Pixel do
   # alpha blending
   # --------------
 
+  # note the color components are not limited to unit range
+  # values outside the range will be clamped
+
+  @typep col1() :: :zero | :one | float()
+
+  @typep col3() :: :zero | :one | {float(), float(), float()}
+
+  @typep pix34b() :: :rgb | :bgr | :rgba | :argb | :bgra | :abgr
+
+  @typep col34b() :: C.col3b() | C.col4b()
+
   @doc """
   Source color is the incoming foreground fragment.
   Destination color is the existing background fragment.
@@ -355,7 +366,7 @@ defmodule Exa.Color.Pixel do
 
   The result is the same size and format as `dst_col` with `dst_pix`
   """
-  @spec alpha_blend(C.color(), C.pixel(), C.color(), C.pixel(), C.blend_mode()) :: C.color()
+  @spec alpha_blend(col34b(), pix34b(), col34b(), pix34b(), C.blend_mode()) :: col34b()
   def alpha_blend(
         src_col,
         src_pix,
@@ -364,7 +375,8 @@ defmodule Exa.Color.Pixel do
         {func_rgb, func_a, param_rgb_src, param_rgb_dst, const_rgb, param_a_src, param_a_dst,
          const_a}
       )
-      when is_colorb(src_col) and is_colorb(dst_col) do
+      when (is_col3b(src_col) or is_col4b(src_col)) and
+             (is_col3b(src_col) or is_col4b(src_col)) do
     # TODO - many optimizations possible here ...
     # (1) Only one param_rgb_src or param_rgb_dst can reference the constant blend color?
     #     The constRGB should be pre-subtracted if param is `:one_minus_const_color`.
@@ -378,10 +390,10 @@ defmodule Exa.Color.Pixel do
     # separate the color-alpha for src and dst
     # convert to unit floats
     # default alpha is 1.0
-    srgb = src_col |> del_alpha(src_pix) |> to_colorf()
-    drgb = dst_col |> del_alpha(dst_pix) |> to_colorf()
-    sa = src_col |> get_alpha(src_pix) |> to_colorf()
-    da = dst_col |> get_alpha(dst_pix) |> to_colorf()
+    srgb = del_alpha(src_col, src_pix)
+    drgb = del_alpha(dst_col, dst_pix)
+    sa = get_alpha(src_col, src_pix)
+    da = get_alpha(dst_col, dst_pix)
 
     col =
       case func_rgb do
@@ -394,7 +406,7 @@ defmodule Exa.Color.Pixel do
         _ ->
           xsrgb = cparam(param_rgb_src, srgb, sa, drgb, da, const_rgb, const_a)
           xdrgb = cparam(param_rgb_dst, srgb, sa, drgb, da, const_rgb, const_a)
-          func_rgb |> do_col(mul(xsrgb, srgb), mul(xdrgb, drgb)) |> Col3f.clamp()
+          do_col(func_rgb, mul3(xsrgb, srgb), mul3(xdrgb, drgb))
       end
 
     case ncomp(dst_pix) do
@@ -413,80 +425,105 @@ defmodule Exa.Color.Pixel do
             _ ->
               xsa = aparam(param_a_src, sa, da, const_a)
               xda = aparam(param_a_dst, sa, da, const_a)
-              func_a |> do_alpha(mul(xsa, sa), mul(xda, da)) |> Math.unit()
+              do_alpha(func_a, mul1(xsa, sa), mul1(xda, da))
           end
 
         col |> add_alpha(a, dst_pix) |> to_colorb()
     end
   end
 
-  @spec cparam(C.blend_param(), E.unit(), E.unit(), E.unit(), E.unit(), E.unit(), E.unit()) ::
-          :zero | :one | C.col3f()
+  @spec cparam(
+          C.blend_param(),
+          src_rgb :: C.col3f(),
+          src_a :: C.col1f(),
+          dst_rgb :: C.col3f(),
+          dst_a :: C.col1f(),
+          const_rgb :: nil | C.col3f(),
+          const_a :: nil | C.col1f()
+        ) :: col3()
   defp cparam(:zero, _, _, _, _, _, _), do: :zero
   defp cparam(:one, _, _, _, _, _, _), do: :one
   defp cparam(:src_color, src, _, _, _, _, _), do: src
   defp cparam(:dst_color, _, _, dst, _, _, _), do: dst
   defp cparam(:const_color, _, _, _, _, con, _), do: con
   defp cparam(:one_minus_src_color, src, _, _, _, _, _), do: Exa.Tuple.map(src, &one_minus/1)
-  defp cparam(:one_minus_dst_color, _, dst, _, _, _, _), do: Exa.Tuple.map(dst, &one_minus/1)
-  defp cparam(:one_minus_const_color, _, _, _, _, con, _), do: Exa.Tuple.map(con, &one_minus/1)
+  defp cparam(:one_minus_dst_color, _, _, dst, _, _, _), do: Exa.Tuple.map(dst, &one_minus/1)
+
+  defp cparam(:one_minus_const_color, _, _, _, _, con, _) when not is_nil(con),
+    do: Exa.Tuple.map(con, &one_minus/1)
+
   defp cparam(:src_alpha, _, sa, _, _, _, _), do: Col3f.gray(sa)
   defp cparam(:dst_alpha, _, _, _, da, _, _), do: Col3f.gray(da)
   defp cparam(:const_alpha, _, _, _, _, _, ca), do: Col3f.gray(ca)
   defp cparam(:one_minus_src_alpha, _, sa, _, _, _, _), do: Col3f.gray(one_minus(sa))
   defp cparam(:one_minus_dst_alpha, _, _, _, da, _, _), do: Col3f.gray(one_minus(da))
-  defp cparam(:one_minus_const_alpha, _, _, _, _, _, ca), do: Col3f.gray(one_minus(ca))
 
-  @spec aparam(C.blend_param(), E.unit(), E.unit(), E.unit()) :: :zero | :one | E.unit()
+  defp cparam(:one_minus_const_alpha, _, _, _, _, _, ca) when not is_nil(ca),
+    do: Col3f.gray(one_minus(ca))
+
+  @spec aparam(C.blend_param(), C.col1f(), C.col1f(), nil | E.unit()) :: col1()
   defp aparam(:zero, _, _, _), do: :zero
   defp aparam(:one, _, _, _), do: :one
   defp aparam(:src_color, sa, _, _), do: sa
   defp aparam(:dst_color, _, da, _), do: da
-  defp aparam(:const_color, _, _, ca), do: ca
+  defp aparam(:const_color, _, _, ca) when not is_nil(ca), do: ca
   defp aparam(:one_minus_src_color, sa, _, _), do: one_minus(sa)
   defp aparam(:one_minus_dst_color, _, da, _), do: one_minus(da)
-  defp aparam(:one_minus_const_color, _, _, ca), do: one_minus(ca)
+  defp aparam(:one_minus_const_color, _, _, ca) when not is_nil(ca), do: one_minus(ca)
   defp aparam(:src_alpha, sa, _, _), do: sa
   defp aparam(:dst_alpha, _, da, _), do: da
   defp aparam(:const_alpha, _, _, ca), do: ca
   defp aparam(:one_minus_src_alpha, sa, _, _), do: one_minus(sa)
   defp aparam(:one_minus_dst_alpha, _, da, _), do: one_minus(da)
-  defp aparam(:one_minus_const_alpha, _, _, ca), do: one_minus(ca)
+  defp aparam(:one_minus_const_alpha, _, _, ca) when not is_nil(ca), do: one_minus(ca)
 
   defp one_minus(x) when is_float(x), do: 1.0 - x
 
-  @spec do_col(atom(), C.col3f(), C.col3f()) :: {float(), float(), float()}
-  defp do_col(:func_add, srgb, drgb), do: add(srgb, drgb)
-  defp do_col(:func_sub, srgb, drgb), do: sub(srgb, drgb)
-  defp do_col(:func_rev_sub, srgb, drgb), do: sub(drgb, srgb)
+  @spec do_col(atom(), :zero | C.col3f(), :zero | C.col3f()) :: C.col3f()
+  defp do_col(:func_add, srgb, drgb), do: add3(srgb, drgb) |> reify3()
+  defp do_col(:func_sub, srgb, drgb), do: sub3(srgb, drgb) |> reify3()
+  defp do_col(:func_rev_sub, srgb, drgb), do: sub3(drgb, srgb) |> reify3()
 
-  @spec do_col(atom(), C.col1f(), C.col1f()) :: float()
-  defp do_alpha(:func_add, sa, da), do: add(sa, da)
-  defp do_alpha(:func_sub, sa, da), do: sub(sa, da)
-  defp do_alpha(:func_rev_sub, sa, da), do: sub(da, sa)
+  @spec do_alpha(atom(), :zero | C.col1f(), :zero | C.col1f()) :: C.col1f()
+  defp do_alpha(:func_add, sa, da), do: add1(sa, da) |> reify1()
+  defp do_alpha(:func_sub, sa, da), do: sub1(sa, da) |> reify1()
+  defp do_alpha(:func_rev_sub, sa, da), do: sub1(da, sa) |> reify1()
 
-  # note the color components are not limited to unit range
-  # values outside the range will be clamped
-  @typep col() :: :zero | :one | float() | {float(), float(), float()}
+  @spec reify1(:zero | C.col1f()) :: C.col1f()
+  defp reify1(:zero), do: 0.0
+  defp reify1(x) when is_float(x), do: Col1f.new(x)
 
-  @spec mul(col(), col()) :: float() | {float(), float(), float()}
-  defp mul(:zero, _), do: :zero
-  defp mul(:one, d), do: d
-  defp mul(d, :one), do: d
-  defp mul({c1, c2, c3}, {d1, d2, d3}), do: {c1 * d1, c2 * d2, c3 * d3}
-  defp mul(p, {d1, d2, d3}), do: {p * d1, p * d2, p * d3}
-  defp mul(p, a), do: p * a
+  @spec reify3(:zero | C.col3f()) :: C.col3f()
+  defp reify3(:zero), do: {0.0, 0.0, 0.0}
+  defp reify3({r, g, b}), do: Col3f.new(r, g, b)
 
-  @spec add(col(), col()) :: float() | {float(), float(), float()}
-  defp add(:zero, c), do: c
-  defp add(c, :zero), do: c
-  defp add({c1, c2, c3}, {d1, d2, d3}), do: {c1 + d1, c2 + d2, c3 + d3}
-  defp add(c, d), do: c + d
+  @spec mul1(col1(), C.col1f()) :: :zero | C.col1f()
+  defp mul1(:zero, _), do: :zero
+  defp mul1(:one, d) when is_float(d), do: d
+  defp mul1(c, d) when is_float(c) and is_float(d), do: c * d
 
-  @spec sub(col(), col()) :: float() | {float(), float(), float()}
-  defp sub(c, :zero), do: c
-  defp sub(:zero, {c1, c2, c3}), do: {-c1, -c2, -c3}
-  defp sub(:zero, c), do: -c
-  defp sub({c1, c2, c3}, {d1, d2, d3}), do: {c1 - d1, c2 - d2, c3 - d3}
-  defp sub(c, d), do: c - d
+  @spec mul3(col3(), C.col3f()) :: :zero | C.col3f()
+  defp mul3(:zero, _), do: :zero
+  defp mul3(:one, d) when is_col3f(d), do: d
+  defp mul3({c1, c2, c3}, {d1, d2, d3}), do: {c1 * d1, c2 * d2, c3 * d3}
+
+  @spec add1(:zero | C.col1f(), :zero | C.col1f()) :: C.col1f()
+  defp add1(:zero, c), do: c
+  defp add1(c, :zero), do: c
+  defp add1(c, d) when is_float(c) and is_float(d), do: c + d
+
+  @spec add3(:zero | C.col3f(), :zero | C.col3f()) :: C.col3f()
+  defp add3(:zero, c) when is_tuple(c), do: c
+  defp add3(c, :zero) when is_tuple(c), do: c
+  defp add3({c1, c2, c3}, {d1, d2, d3}), do: {c1 + d1, c2 + d2, c3 + d3}
+
+  @spec sub1(:zero | C.col1f(), :zero | C.col1f()) :: :zero | C.col1f()
+  defp sub1(c, :zero), do: c
+  defp sub1(:zero, c) when is_float(c), do: -c
+  defp sub1(c, d) when is_float(c) and is_float(d), do: c - d
+
+  @spec sub3(:zero | C.col3f(), :zero | C.col3f()) :: :zero | C.col3f()
+  defp sub3(c, :zero), do: c
+  defp sub3(:zero, {c1, c2, c3}), do: {-c1, -c2, -c3}
+  defp sub3({c1, c2, c3}, {d1, d2, d3}), do: {c1 - d1, c2 - d2, c3 - d3}
 end

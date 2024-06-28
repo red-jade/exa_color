@@ -1,7 +1,7 @@
 defmodule Exa.Color.Col4b do
   @moduledoc """
-  A 4-component byte RGB color with Alpha channel.
-  The pixel order may be RGBA, ABGR, ...
+  A 4-component byte RGB/BGR color with Alpha channel.
+  The pixel order may be RGBA, ABGR, BGRA, ABGR.
 
   The alpha channel is opacity, 
   so `1.0` is opaque and `0.0` is transparent.
@@ -21,6 +21,7 @@ defmodule Exa.Color.Col4b do
   # constructor
   # -----------
 
+  @doc "Create a new 4-byte color by clamping integer components to byte range."
   @spec new(integer(), integer(), integer(), integer()) :: C.col4b()
 
   def new(c1, c2, c3, c4) when is_byte(c1) and is_byte(c2) and is_byte(c3) and is_byte(c4) do
@@ -29,7 +30,7 @@ defmodule Exa.Color.Col4b do
 
   def new(c1, c2, c3, c4)
       when is_integer(c1) and is_integer(c2) and is_integer(c3) and is_integer(c4) do
-    clamp({c1, c2, c3, c4})
+    {Math.byte(c1), Math.byte(c2), Math.byte(c3), Math.byte(c4)}
   end
 
   @doc """
@@ -37,11 +38,8 @@ defmodule Exa.Color.Col4b do
 
   The alpha value may be:
   - boolean (false -> transparent 0, true -> opaque 255)
-
   - bit (0 -> transparent 0, 1 -> opaque 255)
-
   - byte 0..255
-
   - unit float 0.0-1.0, maps to 0..255
 
   The `dst_pix` type is assumed to also represent the original 3-byte order.
@@ -54,17 +52,17 @@ defmodule Exa.Color.Col4b do
   def new({b, g, r}, a, :bgra), do: {b, g, r, a1b(a)}
   def new({b, g, r}, a, :abgr), do: {a1b(a), b, g, r}
 
-  @doc "Convert input alpha value to a byte (0..255)."
+  # convert input alpha value to a byte (0..255)
   @spec a1b(C.alpha_value()) :: byte()
 
-  def a1b(false), do: 0
-  def a1b(true), do: 255
-  def a1b(0), do: 0
-  def a1b(1), do: 255
-  def a1b(a) when is_byte(a), do: a
-  def a1b(a) when is_float(a), do: Convert.f2b(a)
+  defp a1b(false), do: 0
+  defp a1b(true), do: 255
+  defp a1b(0), do: 0
+  defp a1b(1), do: 255
+  defp a1b(a) when is_byte(a), do: a
+  defp a1b(a) when is_float(a), do: Convert.f2b(a)
 
-  def a1b(a) do 
+  defp a1b(a) do
     msg = "Illegal alpha value '#{a}'"
     Logger.error(msg)
     raise ArgumentError, message: msg
@@ -92,7 +90,7 @@ defmodule Exa.Color.Col4b do
   def from_col4f({c1, c2, c3, c4}),
     do: {Convert.f2b(c1), Convert.f2b(c2), Convert.f2b(c3), Convert.f2b(c4)}
 
-  @doc "To RGBA hex."
+  @doc "To RGBA hex string."
   @spec to_hex(C.col4b(), C.pixel4()) :: C.hex4()
   def to_hex({ir, ig, ib, ia}, :rgba),
     do: "#" <> Convert.b2h(ir) <> Convert.b2h(ig) <> Convert.b2h(ib) <> Convert.b2h(ia)
@@ -101,7 +99,7 @@ defmodule Exa.Color.Col4b do
   def to_hex({ia, ir, ig, ib}, :argb), do: to_hex({ir, ig, ib, ia}, :rgba)
   def to_hex({ia, ib, ig, ir}, :abgr), do: to_hex({ir, ig, ib, ia}, :rgba)
 
-  @doc "From RGBA hex."
+  @doc "From RGBA hex string."
   @spec from_hex(C.hex4(), C.pixel4()) :: C.col4b()
   def from_hex(hex, pix \\ :rgba)
 
@@ -153,41 +151,14 @@ defmodule Exa.Color.Col4b do
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(col, pix \\ :rgba) when pix in @c4, do: append_bin(<<>>, pix, col)
+  def to_bin(col, pix \\ :rgba) when pix in @c4,
+    do: append_bin(<<>>, pix, col)
 
   @impl Colorb
-  def append_bin(buf, pix \\ :rgba, col)
-
-  def append_bin(buf, pix, {c1, c2, c3, c4}) when pix in @c4 and is_binary(buf),
+  def append_bin(buf, pix \\ :rgba, {c1, c2, c3, c4}) when pix in @c4 and is_binary(buf),
     do: <<buf::binary, c1, c2, c3, c4>>
 
   @impl Colorb
-  def from_bin(buf, pix \\ :rgba)
-
-  def from_bin(<<c1, c2, c3, c4, rest::binary>>, pix) when pix in @c4,
+  def from_bin(<<c1, c2, c3, c4, rest::binary>>, pix \\ :rgba) when pix in @c4,
     do: {{c1, c2, c3, c4}, rest}
-
-  # -----------------
-  # private functions
-  # -----------------
-
-  # @spec mul(number(), C.col4b()) :: C.col4f()
-  # defp mul(x, {c1, c2, c3, c4}), do: {x * c1, x * c2, x * c3, x * c4}
-
-  # # add two colors with the same pixel format."
-  # @spec add(C.col4b(), C.col4b()) :: C.col4b()
-  # defp add({c1, c2, c3, c4}, {d1, d2, d3, d4}), do: {c1 + d1, c2 + d2, c3 + d3, c4 + d4}
-
-  # integers, or float versions of bytes 0.0-255.0 (not unit float component)
-  @spec clamp({number(), number(), number(), number()}) :: C.col4b()
-
-  def clamp({c1, c2, c3, c4})
-      when is_float(c1) and is_float(c2) and is_float(c3) and is_float(c4) do
-    clamp({round(c1), round(c2), round(c3), round(c4)})
-  end
-
-  def clamp({c1, c2, c3, c4})
-      when is_integer(c1) and is_integer(c2) and is_integer(c3) and is_integer(c4) do
-    {Math.byte(c1), Math.byte(c2), Math.byte(c3), Math.byte(c4)}
-  end
 end

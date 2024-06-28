@@ -1,6 +1,6 @@
 defmodule Exa.Color.Colormap3b do
   @moduledoc """
-  A map of an integer index to a 3-byte RGB or 4-byte RGBA colors.
+  A map of a 1-byte index to 3-byte RGB or 4-byte RGBA colors.
   """
 
   require Logger
@@ -94,7 +94,6 @@ defmodule Exa.Color.Colormap3b do
   The final colormap is always in RGB format 
   (for 3-component color).
   """
-
   @spec gradient(C.col3f(), C.col3f(), C.pixel()) :: C.colormap3b()
   def gradient(c1, c2, pix) when is_col3f(c1) and is_col3f(c2) do
     gradient([{0, c1}, {255, c2}], pix)
@@ -110,7 +109,6 @@ defmodule Exa.Color.Colormap3b do
   The final colormap is always in RGB format 
   (for 3-component color).
   """
-
   @spec gradient(C.col3f(), C.col3f(), C.col3f(), C.pixel()) :: C.colormap3b()
   def gradient(c1, c2, c3, pix) when is_col3f(c1) and is_col3f(c2) do
     gradient([{0, c1}, {127, c2}, {255, c3}], pix)
@@ -181,10 +179,6 @@ defmodule Exa.Color.Colormap3b do
   @spec lookup(C.colormap3b(), byte()) :: C.col3f()
   def lookup({:colormap, :index, _pix, cmap}, i) when is_byte(i), do: Map.fetch!(cmap, i)
 
-  # --------------
-  # public methods
-  # --------------
-
   # ---------------
   # private methods
   # ---------------
@@ -201,16 +195,19 @@ defmodule Exa.Color.Colormap3b do
   end
 
   defp linear({0, c1}, {255, c2}, cmap) do
+    diff = sub(c2, c1)
+
     Enum.reduce(0..255, cmap, fn i, cmap ->
-      Map.put(cmap, i, Col3f.lerp(c1, Convert.b2f(i), c2))
+      Map.put(cmap, i, Col3f.lerp_diff(c1, Convert.b2f(i), diff))
     end)
   end
 
   defp linear({imin, c1}, {imax, c2}, cmap) when imax > imin + 1 do
     iscale = 1.0 / (imax - imin)
+    diff = sub(c2, c1)
 
     Enum.reduce(imin..imax, cmap, fn i, cmap ->
-      Map.put(cmap, i, Col3f.lerp(c1, (i - imin) * iscale, c2))
+      Map.put(cmap, i, Col3f.lerp_diff(c1, (i - imin) * iscale, diff))
     end)
   end
 
@@ -226,4 +223,8 @@ defmodule Exa.Color.Colormap3b do
       {i, c |> ColorSpace.hsl2rgb() |> Col3f.to_col3b()}
     end
   end
+
+  # difference of two colors
+  @spec sub(C.col3f(), C.col3f()) :: C.col3f()
+  defp sub({r1, g1, b1}, {r2, g2, b2}), do: {r1 - r2, g1 - g2, b1 - b2}
 end

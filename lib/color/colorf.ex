@@ -1,6 +1,7 @@
 defmodule Exa.Color.Colorf do
   @moduledoc "A behaviour for float colors."
 
+  import Exa.Color.Types
   alias Exa.Color.Types, as: C
 
   alias Exa.Color.Col1f
@@ -22,15 +23,16 @@ defmodule Exa.Color.Colorf do
   The colors can only be 1- or 3-component.
   Colors with 2- or 4-components should use alpha blending to combine colors.
   """
-  @callback blend(C.color_weights() | C.colors3() | C.colors1()) :: C.colorb()
+
+  # @callback blend(C.color_weights() | C.colors3() | C.colors1()) :: C.col1b() | C.col3b()
 
   @spec blend(C.color_weights() | C.colors3() | C.colors1()) :: C.col1b() | C.col3b()
 
-  def blend([{_, c} | _] = wcols) when is_tuple(c) and tuple_size(c) == 3 do
+  def blend([{_, c} | _] = wcols) when is_color3(c) do
     wcols |> Col3f.blend() |> Col3f.to_col3b()
   end
 
-  def blend([{_, c} | _] = wcols) when is_number(c) do
+  def blend([{_, c} | _] = wcols) when is_color1(c) do
     wcols |> Col1f.blend() |> Col1f.to_col1b()
   end
 end

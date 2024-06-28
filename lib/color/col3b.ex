@@ -1,5 +1,5 @@
 defmodule Exa.Color.Col3b do
-  @moduledoc "A 3-component byte RGB color."
+  @moduledoc "A 3-component byte RGB or BGR color."
 
   import Exa.Types
   alias Exa.Types, as: E
@@ -56,12 +56,21 @@ defmodule Exa.Color.Col3b do
   # constructor
   # -----------
 
+  @doc "Create a new 3-byte color by clamping integer components to byte range."
   @spec new(integer(), integer(), integer()) :: C.col3b()
+
   def new(c1, c2, c3) when is_byte(c1) and is_byte(c2) and is_byte(c3), do: {c1, c2, c3}
 
   def new(c1, c2, c3) when is_integer(c1) and is_integer(c2) and is_integer(c3),
     do: clamp({c1, c2, c3})
 
+  @doc """
+  Create a new 3-byte color by name. 
+  Only a few names are supported:
+  black/white, primaries (RGB), secondaries (CMY) and gray.
+
+  See `Exa.Color.Col3name` for full range of CSS colors.
+  """
   @spec new(String.t()) :: C.col3b()
   def new(s) when is_binary(s) do
     s |> String.replace(" ", "") |> String.downcase() |> do_new()
@@ -89,6 +98,8 @@ defmodule Exa.Color.Col3b do
 
   # equals? use ==
 
+  # modify ----------
+
   @doc "Reduce value."
   @spec dark(C.col3b()) :: C.col3b()
   def dark(col) when is_col3b(col), do: clamp(mul(0.5, col))
@@ -96,6 +107,8 @@ defmodule Exa.Color.Col3b do
   @doc "Increase saturation."
   @spec pale(C.col3b()) :: C.col3b()
   def pale(col) when is_col3b(col), do: clamp(mul(0.5, add(white(), col)))
+
+  # conversions ----------
 
   @doc """
   Calculate the luminance (brightness) 
@@ -120,12 +133,12 @@ defmodule Exa.Color.Col3b do
   @spec from_col3f(C.col3f()) :: C.col3b()
   def from_col3f({c1, c2, c3}), do: {Convert.f2b(c1), Convert.f2b(c2), Convert.f2b(c3)}
 
-  @doc "To RGB hex."
+  @doc "To RGB hex string."
   @spec to_hex(C.col3b(), C.pixel3()) :: C.hex3()
   def to_hex({ir, ig, ib}, :rgb), do: "#" <> Convert.b2h(ir) <> Convert.b2h(ig) <> Convert.b2h(ib)
   def to_hex({ib, ig, ir}, :bgr), do: to_hex({ir, ig, ib}, :rgb)
 
-  @doc "From RGB hex."
+  @doc "From RGB hex string."
   @spec from_hex(C.hex3(), C.pixel3()) :: C.col3b()
   def from_hex(col, pix \\ :rgb)
 
@@ -154,7 +167,7 @@ defmodule Exa.Color.Col3b do
 
   # binary conversions ----------
 
-  # TODO - note the pixel format does not affect thesd
+  # TODO - note the pixel format does not affect these
   #        unless the src and dst pixels are different
   #        then need 2 args 
 
@@ -163,7 +176,8 @@ defmodule Exa.Color.Col3b do
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(col, pix \\ :rgb) when pix in @c3, do: append_bin(<<>>, pix, col)
+  def to_bin(col, pix \\ :rgb) when pix in @c3,
+    do: append_bin(<<>>, pix, col)
 
   @impl Colorb
   def append_bin(buf, pix \\ :rgb, {c1, c2, c3}) when pix in @c3 and is_binary(buf),
@@ -177,21 +191,22 @@ defmodule Exa.Color.Col3b do
   # private functions
   # -----------------
 
+  # scalar multiply to give a float color
   @spec mul(number(), C.col3b()) :: C.col3f()
   defp mul(x, {c1, c2, c3}), do: {x * c1, x * c2, x * c3}
 
-  # add two colors with the same pixel format."
+  # add two colors with the same pixel format
   @spec add(C.col3b(), C.col3b()) :: C.col3b()
   defp add({c1, c2, c3}, {d1, d2, d3}), do: {c1 + d1, c2 + d2, c3 + d3}
 
   # integers, or float versions of bytes 0.0-255.0 (not unit float component)
   @spec clamp({number(), number(), number()}) :: C.col3b()
 
-  def clamp({c1, c2, c3}) when is_float(c1) and is_float(c2) and is_float(c3) do
+  defp clamp({c1, c2, c3}) when is_float(c1) and is_float(c2) and is_float(c3) do
     clamp({round(c1), round(c2), round(c3)})
   end
 
-  def clamp({c1, c2, c3}) when is_integer(c1) and is_integer(c2) and is_integer(c3) do
+  defp clamp({c1, c2, c3}) when is_integer(c1) and is_integer(c2) and is_integer(c3) do
     {Math.byte(c1), Math.byte(c2), Math.byte(c3)}
   end
 end

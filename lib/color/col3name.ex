@@ -1,6 +1,7 @@
 defmodule Exa.Color.Col3Name do
   @moduledoc """
-  A 3-component RGB color name.
+  A named 3-component RGB color.
+
   RGB values are defined as bytes (Col3b).
 
   Values are taken from the _CSS Color Module Level 4_ candidate recommendation
@@ -13,16 +14,24 @@ defmodule Exa.Color.Col3Name do
 
   alias Exa.Color.Types, as: C
 
+  # file location in the priv distribution directory
   @css_file Path.join(["priv", "css", "css-level4.txt"])
 
   # ----------------
   # public functions
   # ----------------
 
+  # constructor ----------
+
+  @doc """
+  Create a new named 3-component RGB byte color.
+
+  Color names will have spaces removed and shifted to all lowercase. 
+  """
   @spec new(String.t()) :: C.col3name()
   def new(str) when is_string(str) do
-    cmap = Exa.Process.get_or_set(:css_colors, &load_css/0)
     name = str |> String.replace(" ", "") |> String.downcase()
+    cmap = Exa.Process.get_or_set(:css_colors, &load_css/0)
 
     case Map.fetch(cmap, name) do
       :error ->
@@ -34,6 +43,8 @@ defmodule Exa.Color.Col3Name do
         {name, col}
     end
   end
+
+  # accessors and conversions ----------
 
   @spec to_name(C.col3name()) :: String.t()
   def to_name({name, _}) when is_string(name), do: to_string(name)
@@ -52,14 +63,13 @@ defmodule Exa.Color.Col3Name do
   # -----------------
 
   # read the text file definitions
-  # load into the process dictionary
-
+  # parse each line into a map entry
+  # then load into the process dictionary
   @spec load_css() :: %{String.t() => C.col3b()}
   defp load_css() do
-    @css_file 
-    |> Exa.File.from_file_lines(comments: ["//"]) 
+    @css_file
+    |> Exa.File.from_file_lines(comments: ["//"])
     |> Enum.map(fn line -> line |> String.split() |> List.to_tuple() end)
     |> Enum.reduce(%{}, fn {name, hex}, cmap -> Map.put(cmap, name, Col3b.from_hex(hex)) end)
   end
-
 end

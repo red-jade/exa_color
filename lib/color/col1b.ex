@@ -37,6 +37,7 @@ defmodule Exa.Color.Col1b do
   # constructor
   # -----------
 
+  @doc "Create a new byte color by clamping an integer to a byte range."
   @spec new(integer()) :: C.col1b()
   def new(i) when is_integer(i), do: clamp(i)
 
@@ -46,6 +47,8 @@ defmodule Exa.Color.Col1b do
 
   # equals? use ==
 
+  # modify ----------
+
   @doc "Reduce value."
   @spec dark(C.col1b()) :: C.col1b()
   def dark(col) when is_col1b(col), do: clamp(0.5 * col)
@@ -53,6 +56,8 @@ defmodule Exa.Color.Col1b do
   @doc "Increase saturation."
   @spec pale(C.col1b()) :: C.col1b()
   def pale(col) when is_col1b(col), do: clamp(0.5 * (255 + col))
+
+  # convert ----------
 
   @spec to_col1f(C.col1b()) :: C.col1f()
   def to_col1f(i) when is_col1b(i), do: Convert.b2f(i)
@@ -73,14 +78,16 @@ defmodule Exa.Color.Col1b do
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(i, pix \\ :gray) when pix in @c1 and is_col1b(i), do: <<i>>
+  def to_bin(i, pix \\ :gray) when pix in @c1 and is_col1b(i),
+    do: <<i>>
 
   @impl Colorb
   def append_bin(buf, pix \\ :gray, i) when pix in @c1 and is_binary(buf) and is_col1b(i),
     do: <<buf::binary, i>>
 
   @impl Colorb
-  def from_bin(<<i, rest::binary>>, pix \\ :gray) when pix in @c1, do: {i, rest}
+  def from_bin(<<i, rest::binary>>, pix \\ :gray) when pix in @c1,
+    do: {i, rest}
 
   # -----------------
   # private functions

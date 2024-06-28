@@ -16,6 +16,7 @@ defmodule Exa.Color.Col4f do
   # constructor
   # -----------
 
+  @doc "Create a new 4-float color by clamping float components to unit range."
   @spec new(float(), float(), float(), float()) :: C.col4f()
   def new(c1, c2, c3, c4) when is_float(c1) and is_float(c2) and is_float(c3) and is_float(c4),
     do: clamp({c1, c2, c3, c4})
@@ -42,26 +43,27 @@ defmodule Exa.Color.Col4f do
   def new({b, g, r}, a, :bgra), do: {b, g, r, a1f(a)}
   def new({b, g, r}, a, :abgr), do: {a1f(a), b, g, r}
 
-  @doc "Convert input alpha value to a unit float (0.0-1.0)."
+  # convert input alpha value to a unit float (0.0-1.0)
   @spec a1f(C.alpha_value()) :: E.unit()
 
-  def a1f(false), do: 0.0
-  def a1f(true), do: 1.0
-  def a1f(0), do: 0.0
-  def a1f(1), do: 1.0
-  def a1f(a) when is_byte(a), do: Convert.b2f(a)
-  def a1f(a) when is_float(a), do: Math.unit(a)
+  defp a1f(false), do: 0.0
+  defp a1f(true), do: 1.0
+  defp a1f(0), do: 0.0
+  defp a1f(1), do: 1.0
+  defp a1f(a) when is_byte(a), do: Convert.b2f(a)
+  defp a1f(a) when is_float(a), do: Math.unit(a)
 
-  def a1f(a) do 
+  defp a1f(a) do
     msg = "Illegal alpha value '#{a}'"
     Logger.error(msg)
     raise ArgumentError, message: msg
   end
- 
+
   # --------------
   # public methods
   # --------------
 
+  @doc "Compare 2 colors for equality (within tolerance)."
   @spec equals?(C.col4f(), C.col4f(), E.epsilon()) :: bool()
   def equals?({c1, c2, c3, c4}, {d1, d2, d3, d4}, eps \\ @epsilon) do
     Math.equals?(c1, d1, eps) and Math.equals?(c2, d2, eps) and
@@ -86,7 +88,7 @@ defmodule Exa.Color.Col4f do
   def from_col4b({c1, c2, c3, c4}),
     do: {Convert.b2f(c1), Convert.b2f(c2), Convert.b2f(c3), Convert.b2f(c4)}
 
-  @doc "To RGBA hex."
+  @doc "To RGBA hex string."
   @spec to_hex(C.col4f(), C.pixel4()) :: C.hex4()
   def to_hex(col, pix \\ :rgba)
 
@@ -102,7 +104,7 @@ defmodule Exa.Color.Col4f do
   def to_hex({a, b, g, r}, :abgr),
     do: "#" <> Convert.f2h(r) <> Convert.f2h(g) <> Convert.f2h(b) <> Convert.f2h(a)
 
-  @doc "From RGBA hex."
+  @doc "From RGBA hex string."
   @spec from_hex(C.hex4(), C.pixel4()) :: C.col4f()
   def from_hex(hex, pix \\ :rgba)
 
@@ -149,8 +151,8 @@ defmodule Exa.Color.Col4f do
   defp dp3(x) when is_float(x), do: Float.round(x, 3)
 
   @spec clamp({float(), float(), float(), float()}) :: C.col4f()
-  def clamp({c1, c2, c3, c4})
-      when is_float(c1) and is_float(c2) and is_float(c3) and is_float(c4) do
+  defp clamp({c1, c2, c3, c4})
+       when is_float(c1) and is_float(c2) and is_float(c3) and is_float(c4) do
     {Math.unit(c1), Math.unit(c2), Math.unit(c3), Math.unit(c4)}
   end
 end
