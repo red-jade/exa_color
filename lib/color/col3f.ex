@@ -14,6 +14,7 @@ defmodule Exa.Color.Col3f do
 
   alias Exa.Color.Col3b
   alias Exa.Color.Col3Name
+  alias Exa.Color.ColorSpace
 
   # ---------
   # constants
@@ -150,11 +151,30 @@ defmodule Exa.Color.Col3f do
     }
   end
 
-  @doc "Write in CSS RGB value format."
-  @spec to_css(C.col3f(), C.pixel()) :: String.t()
+  # does the CSS rgb((...) format allow floating point?
+  # "rgb(#{dp3(r)} #{dp3(g)} #{dp3(b)})"
+
+  @doc "Write in CSS rgb(...) value format."
+  @spec to_css(C.col3f(), :rgb | :bgr) :: String.t()
   def to_css(col, pix \\ :rgb)
-  def to_css({r, g, b}, :rgb), do: "rgb(#{dp3(r)} #{dp3(g)} #{dp3(b)})"
+
+  def to_css(col, :rgb) when is_col3f(col) do 
+    {ir, ig, ib} = to_col3b(col)
+    "rgb(#{ir} #{ig} #{ib})"
+  end
+
   def to_css({b, g, r}, :bgr), do: to_css({r, g, b}, :rgb)
+
+  @doc "Write in CSS hsl(...) value format."
+  @spec to_css_hsl(C.col3f(), :rgb | :bgr) :: String.t()
+  def to_css_hsl(col, pix \\ :rgb)
+
+  def to_css_hsl(col, :rgb) when is_col3f(col) do 
+    {ih, is, il} = col |> ColorSpace.rgb2hsl() |> ColorSpace.unit2hsl()
+    "hsl(#{ih} #{is}% #{il}%)"
+  end
+
+  def to_css_hsl({b, g, r}, :bgr), do: to_css_hsl({r, g, b}, :rgb)
 
   # blend ----------
 
@@ -215,8 +235,8 @@ defmodule Exa.Color.Col3f do
   # -----------------
 
   # round to 3 decimal points
-  @spec dp3(float()) :: float()
-  defp dp3(x) when is_float(x), do: Float.round(x, 3)
+  # @spec dp3(float()) :: float()
+  # defp dp3(x) when is_float(x), do: Float.round(x, 3)
 
   # scalar multiply with the same pixel format
   @spec mul(float(), C.col3f()) :: C.col3f()

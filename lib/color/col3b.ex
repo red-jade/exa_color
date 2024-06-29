@@ -12,6 +12,7 @@ defmodule Exa.Color.Col3b do
 
   alias Exa.Color.Colorb
   alias Exa.Color.Col3Name
+  alias Exa.Color.ColorSpace
 
   # ---------
   # constants
@@ -158,12 +159,21 @@ defmodule Exa.Color.Col3b do
     }
   end
 
-  # There is no CSS floating point RGB format !!!!
-
   @doc "Write in CSS rgb(...) value format."
   @spec to_css(C.col3b(), C.pixel()) :: String.t()
   def to_css({ir, ig, ib}, :rgb), do: "rgb(#{ir} #{ig} #{ib})"
   def to_css({ib, ig, ir}, :bgr), do: to_css({ir, ig, ib}, :rgb)
+
+  @doc "Write in CSS hsl(...) value format."
+  @spec to_css_hsl(C.col3b(), :rgb | :bgr) :: String.t()
+  def to_css_hsl(col, pix \\ :rgb)
+
+  def to_css_hsl(col, :rgb) when is_col3b(col) do 
+    {h, s, l} = col |> to_col3f() |> ColorSpace.rgb2hsl() |> ColorSpace.unit2hsl()
+    "hsl(#{h} #{s}% #{l}%)"
+  end
+
+  def to_css_hsl(col, :bgr), do: to_css_hsl(col, :rgb)
 
   # binary conversions ----------
 
