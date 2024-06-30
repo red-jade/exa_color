@@ -5,7 +5,7 @@ defmodule Exa.Color.MixProject do
     [
       app: :exa_color,
       name: "Exa Color",
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.15",
       erlc_options: [:verbose, :report_errors, :report_warnings, :export_all],
       start_permanent: Mix.env() == :prod,
@@ -18,7 +18,7 @@ defmodule Exa.Color.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :ssl, :inets]
+      extra_applications: [:logger]
     ]
   end
 
@@ -35,7 +35,7 @@ defmodule Exa.Color.MixProject do
     [
       # runtime code dependencies ----------
 
-      {:exa, git: "https://github.com/red-jade/exa_core.git", tag: "v0.1.0"},
+      {:exa, git: "https://github.com/red-jade/exa_core.git", tag: "v0.1.1"},
 
       # building, documenting, testing ----------
 
@@ -43,10 +43,10 @@ defmodule Exa.Color.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
 
       # documentation
-      {:ex_doc, "~> 0.30", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.30", only: [:dev, :test], runtime: false}
 
       # benchmarking
-      {:benchee, "~> 1.0", only: [:dev, :test]}
+      # , {:benchee, "~> 1.0", only: [:dev, :test]}
     ]
   end
 end
