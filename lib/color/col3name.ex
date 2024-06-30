@@ -15,7 +15,7 @@ defmodule Exa.Color.Col3Name do
   alias Exa.Color.Types, as: C
 
   # file location in the priv distribution directory
-  @css_file Path.join([:code.priv_dir(:exa_color), "priv", "css", "css-level4.txt"])
+  @css_file Path.join([:code.priv_dir(:exa_color), "css", "css-level4.txt"])
 
   # ----------------
   # public functions
