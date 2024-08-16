@@ -5,11 +5,11 @@ defmodule Exa.Color.MixProject do
     [
       app: :exa_color,
       name: "Exa Color",
-      version: "0.1.5",
+      version: "0.1.7",
       elixir: "~> 1.15",
       erlc_options: [:verbose, :report_errors, :report_warnings, :export_all],
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
+      deps: deps(:main)++deps(:support),
       docs: docs(),
       test_pattern: "*_test.exs",
       dialyzer: [flags: [:no_improper_lists]]
@@ -31,14 +31,24 @@ defmodule Exa.Color.MixProject do
     ]
   end
 
-  defp deps do
+  # runtime code dependencies ----------
+
+  defp deps(:main) do
     [
-      # runtime code dependencies ----------
+      {:exa, path: "../exa_core"}
+    ]
+  end
 
-      {:exa, git: "https://github.com/red-jade/exa_core.git", tag: "v0.1.5"},
+  defp deps(:tag) do
+    [
+      {:exa, git: "https://github.com/red-jade/exa_core.git", tag: "v0.1.7"}
+    ]
+  end
 
-      # building, documenting, testing ----------
+  # building, documenting, testing ----------
 
+  defp deps(:support) do
+    [
       # typechecking
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
 
