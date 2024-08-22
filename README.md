@@ -1,4 +1,4 @@
-## EXA Color
+# EXA Color
 
 𝔼𝕏tr𝔸 𝔼li𝕏ir 𝔸dditions (𝔼𝕏𝔸)
 
@@ -9,7 +9,7 @@ color space conversions and named colors (CSS).
 
 Module path: `Exa.Color`
 
-### Naming Convention
+## Naming Convention
 
 Modules are named with:
 - digit for the number of components: 1, 2, 3, 4
@@ -17,7 +17,7 @@ Modules are named with:
 
 For example, `col3f` is a 3-component color using unit float values, e.g. RGB.
 
-### Design
+## Design
 
 The design prefers plain (untagged) tuples
 for compact size and efficient O(1) access time (contiguous in memory).
@@ -33,7 +33,7 @@ CSS colors are loaded from a text file on demand.
 The look-up table is stored in the process dictionary.
 Every process that accesses CSS colors will have a copy.
 
-### Features
+## Features
 
 - Colors: 1,3,4 byte,float
 - Color models: RGB, HSL
@@ -42,7 +42,12 @@ Every process that accesses CSS colors will have a copy.
 - Pixels and components
 - Conversion utilities: byte,float
 
-### License
+## Building
+
+To bootstrap an `exa_xxx` library build, 
+you must run `mix deps.get` twice.
+
+## EXA License
 
 EXA source code is released under the MIT license.
 
