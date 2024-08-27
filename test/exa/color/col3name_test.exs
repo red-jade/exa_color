@@ -1,7 +1,7 @@
 defmodule Exa.Color.Col3NameTest do
   use ExUnit.Case
 
-  import Exa.Color.Col3Name
+  import Exa.Color.Col3name
 
   test "simple" do
     assert {"pink", {255, 192, 203}} == "pink" |> new()

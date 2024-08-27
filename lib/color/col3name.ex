@@ -1,4 +1,4 @@
-defmodule Exa.Color.Col3Name do
+defmodule Exa.Color.Col3name do
   @moduledoc """
   A named 3-component RGB color.
 

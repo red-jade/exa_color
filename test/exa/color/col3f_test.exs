@@ -6,7 +6,7 @@ defmodule Exa.Color.Col3fTest do
   alias Exa.Color.ColorSpace
   alias Exa.Color.Col1b
   alias Exa.Color.Col3b
-  alias Exa.Color.Col3Name
+  alias Exa.Color.Col3name
 
   test "simple" do
     assert {1.0, 1.0, 1.0} == white()
@@ -46,9 +46,9 @@ defmodule Exa.Color.Col3fTest do
 
     assert <<255, 0, 0>> == red() |> to_col3b() |> Col3b.to_bin()
     assert <<128, 128, 128>> == gray() |> to_col3b() |> Col3b.to_bin()
-    assert <<0xCD, 0x85, 0x3F>> == Col3Name.new("peru") |> elem(1) |> Col3b.to_bin()
+    assert <<0xCD, 0x85, 0x3F>> == Col3name.new("peru") |> elem(1) |> Col3b.to_bin()
 
-    assert {Col3Name.new("peru") |> elem(1), <<>>} == Col3b.from_bin(<<0xCD, 0x85, 0x3F>>)
+    assert {Col3name.new("peru") |> elem(1), <<>>} == Col3b.from_bin(<<0xCD, 0x85, 0x3F>>)
 
     assert_raise FunctionClauseError, fn -> from_hex("FFFFFF") end
     assert_raise ArgumentError, fn -> from_hex("#1234XY") end
