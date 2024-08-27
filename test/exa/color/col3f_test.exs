@@ -9,20 +9,20 @@ defmodule Exa.Color.Col3fTest do
   alias Exa.Color.Col3Name
 
   test "simple" do
-    assert {1.0, 1.0, 1.0} = white()
-    assert {1.0, 1.0, 1.0} = new("white")
+    assert {1.0, 1.0, 1.0} == white()
+    assert {1.0, 1.0, 1.0} == new("white")
 
-    assert {1.0, 0.0, 0.0} = red()
-    assert {1.0, 0.0, 0.0} = new("red")
-    assert {0.75, 0.0, 0.0} = new("RED") |> dark()
-    assert {0.75, 0.25, 0.25} = new("Red ") |> pale()
-    assert {0.625, 0.375, 0.375} = red() |> pale() |> pale()
+    assert {1.0, 0.0, 0.0} == red()
+    assert {1.0, 0.0, 0.0} == new("red")
+    assert {0.75, 0.0, 0.0} == new("RED") |> dark()
+    assert {0.75, 0.25, 0.25} == new("Red ") |> pale()
+    assert {0.625, 0.375, 0.375} == red() |> pale() |> pale()
 
-    assert {0.5, 0.5, 0.5} = gray()
-    assert {0.25, 0.25, 0.25} = gray_pc(25)
-    assert {0.5, 0.5, 0.5} = new("grey")
+    assert {0.5, 0.5, 0.5} == gray()
+    assert {0.25, 0.25, 0.25} == gray_pc(25)
+    assert {0.5, 0.5, 0.5} == new("grey")
     # gray is the palest color :)
-    assert {0.5, 0.5, 0.5} = new("gray") |> pale()
+    assert {0.5, 0.5, 0.5} == new("gray") |> pale()
 
     assert white() == gray_pc(100)
     assert black() == gray_pc(0)
@@ -55,16 +55,16 @@ defmodule Exa.Color.Col3fTest do
   end
 
   test "col1b" do
-    assert 255 = Col1b.white()
-    assert 0 = Col1b.black()
-    assert 128 = Col1b.gray()
-    assert 47 = Col1b.new(47)
-    assert 255 = Col1b.new(447)
-    assert {47, 47, 47} = 47 |> Col1b.new() |> Col1b.to_col3b()
-    assert {128, 128, 128} = 128 |> Col1b.new() |> Col1b.to_col3b()
-    assert <<47>> = 47 |> Col1b.new() |> Col1b.to_bin()
-    assert <<47, 93, 178>> = Col1b.append_bin(<<47, 93>>, Col1b.new(178))
-    assert {47, <<93, 178>>} = Col1b.from_bin(<<47, 93, 178>>)
+    assert 255 == Col1b.white()
+    assert 0 == Col1b.black()
+    assert 128 == Col1b.gray()
+    assert 47 == Col1b.new(47)
+    assert 255 == Col1b.new(447)
+    assert {47, 47, 47} == 47 |> Col1b.new() |> Col1b.to_col3b()
+    assert {128, 128, 128} == 128 |> Col1b.new() |> Col1b.to_col3b()
+    assert <<47>> == 47 |> Col1b.new() |> Col1b.to_bin()
+    assert <<47, 93, 178>> == Col1b.append_bin(<<47, 93>>, Col1b.new(178))
+    assert {47, <<93, 178>>} == Col1b.from_bin(<<47, 93, 178>>)
   end
 
   test "lerp blend" do
@@ -82,45 +82,45 @@ defmodule Exa.Color.Col3fTest do
 
   test "rgb2hsl" do
     black = black() |> ColorSpace.rgb2hsl()
-    assert {0.0, 0.0, 0.0} = black
+    assert {0.0, 0.0, 0.0} == black
 
     gray25 = gray(0.25) |> ColorSpace.rgb2hsl()
-    assert {0.0, 0.0, 0.25} = gray25
+    assert {0.0, 0.0, 0.25} == gray25
 
     gray50 = gray() |> ColorSpace.rgb2hsl()
-    assert {0.0, 0.0, 0.5} = gray50
+    assert {0.0, 0.0, 0.5} == gray50
 
     gray75 = gray(0.75) |> ColorSpace.rgb2hsl()
-    assert {0.0, 0.0, 0.75} = gray75
+    assert {0.0, 0.0, 0.75} == gray75
 
     white = white() |> ColorSpace.rgb2hsl()
-    assert {0.0, 0.0, 1.0} = white
+    assert {0.0, 0.0, 1.0} == white
 
     red = red() |> ColorSpace.rgb2hsl()
-    assert {0.0, 1.0, 0.5} = red
+    assert {0.0, 1.0, 0.5} == red
 
     yellow = yellow() |> ColorSpace.rgb2hsl()
-    assert {0.16666666666666666, 1.0, 0.5} = yellow
+    assert {0.16666666666666666, 1.0, 0.5} == yellow
 
     green = green() |> ColorSpace.rgb2hsl()
-    assert {0.3333333333333333, 1.0, 0.5} = green
+    assert {0.3333333333333333, 1.0, 0.5} == green
 
     cyan = cyan() |> ColorSpace.rgb2hsl()
-    assert {0.5, 1.0, 0.5} = cyan
+    assert {0.5, 1.0, 0.5} == cyan
 
     blue = blue() |> ColorSpace.rgb2hsl()
-    assert {0.6666666666666666, 1.0, 0.5} = blue
+    assert {0.6666666666666666, 1.0, 0.5} == blue
 
     magenta = magenta() |> ColorSpace.rgb2hsl()
-    assert {0.8333333333333334, 1.0, 0.5} = magenta
+    assert {0.8333333333333334, 1.0, 0.5} == magenta
 
     # change saturation
 
     pale_red = red() |> pale() |> ColorSpace.rgb2hsl()
-    assert {0.0, 0.5, 0.5} = pale_red
+    assert {0.0, 0.5, 0.5} == pale_red
 
     dark_green = green() |> dark() |> ColorSpace.rgb2hsl()
-    assert {0.3333333333333333, 1.0, 0.375} = dark_green
+    assert {0.3333333333333333, 1.0, 0.375} == dark_green
   end
 
   test "ColorSpace.hsl2rgb" do
