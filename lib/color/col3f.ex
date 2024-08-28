@@ -13,7 +13,7 @@ defmodule Exa.Color.Col3f do
   alias Exa.Convert
 
   alias Exa.Color.Col3b
-  alias Exa.Color.Col3Name
+  alias Exa.Color.Col3name
   alias Exa.Color.ColorSpace
 
   # ---------
@@ -88,7 +88,7 @@ defmodule Exa.Color.Col3f do
   defp do_new("gray"), do: gray()
   defp do_new("grey"), do: gray()
 
-  defp do_new(str) when is_binary(str), do: str |> Col3Name.new() |> Col3Name.to_col3f()
+  defp do_new(str) when is_binary(str), do: str |> Col3name.new() |> Col3name.to_col3f()
 
   # --------------
   # public methods
