@@ -181,20 +181,18 @@ defmodule Exa.Color.Col3b do
   #        unless the src and dst pixels are different
   #        then need 2 args 
 
-  @c3 [:rgb, :bgr]
-
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(col, pix \\ :rgb) when pix in @c3,
+  def to_bin(col, pix \\ :rgb) when is_pix3(pix),
     do: append_bin(<<>>, pix, col)
 
   @impl Colorb
-  def append_bin(buf, pix \\ :rgb, {c1, c2, c3}) when pix in @c3 and is_binary(buf),
+  def append_bin(buf, pix \\ :rgb, {c1, c2, c3}) when is_pix3(pix) and is_binary(buf),
     do: <<buf::binary, c1, c2, c3>>
 
   @impl Colorb
-  def from_bin(<<c1, c2, c3, rest::binary>>, pix \\ :rgb) when pix in @c3,
+  def from_bin(<<c1, c2, c3, rest::binary>>, pix \\ :rgb) when is_pix3(pix),
     do: {{c1, c2, c3}, rest}
 
   # -----------------

@@ -143,35 +143,27 @@ defmodule Exa.Color.Types do
 
   @typedoc "Color channel components."
   @type channel() :: :index | :gray | :a | :r | :g | :b | :h | :s | :l
+  defguard is_chan(ch) when ch in [:index, :gray, :a, :r, :g, :b, :h, :s, :l]
 
   @typedoc "1-channel pixel formats."
   @type pixel1() :: :index | :gray | :alpha
+  defguard is_pix1(px) when px in [:index, :gray, :alpha]
 
   @typedoc "2-channel pixel formats."
   @type pixel2() :: :gray_alpha | :alpha_gray
+  defguard is_pix2(px) when px in [:gray_alpha, :alpha_gray]
 
   @typedoc "3-channel pixel formats."
   @type pixel3() :: :rgb | :bgr
+  defguard is_pix3(px) when px in [:rgb, :bgr]
 
   @typedoc "4-channel pixel formats."
   @type pixel4() :: :rgba | :argb | :bgra | :abgr
+  defguard is_pix4(px) when px in [:rgba, :argb, :bgra, :abgr]
 
   @typedoc "All pixel formats."
   @type pixel() :: pixel1() | pixel2() | pixel3() | pixel4()
-  defguard is_pix(px)
-           when px in [
-                  :gray,
-                  :index,
-                  :rgb,
-                  :rgba,
-                  :bgr,
-                  :argb,
-                  :abgr,
-                  :bgra,
-                  :gray_alpha,
-                  :alpha_gray,
-                  :alpha
-                ]
+  defguard is_pix(px) when is_pix1(px) or is_pix3(px) or is_pix4(px) or is_pix2(px)
 
   @typedoc "A component of a color: byte (0..255) or unit float (0.0-1.0)."
   @type component() :: byte() | E.unit()
@@ -281,8 +273,8 @@ defmodule Exa.Color.Types do
   # colormap
   # --------
 
-  @typedoc "A control point to specify an indexed colormap gradient."
-  @type icol3f() :: {byte(), col3f()}
+  @typedoc "A colormap to lookup a 1-byte grayscale for a byte index."
+  @type cmap1b() :: %{byte() => col1b()}
 
   @typedoc "A colormap to lookup a 3-byte color for a byte index."
   @type cmap3b() :: %{byte() => col3b()}
@@ -290,12 +282,18 @@ defmodule Exa.Color.Types do
   @typedoc "A colormap to lookup a 4-byte color for a byte index."
   @type cmap4b() :: %{byte() => col4b()}
 
+  @typedoc "A full colormap with pixel types and 1-byte lookup table."
+  @type colormap1b() :: {:colormap, :index, :gray, cmap1b()}
+
   @typedoc "A full colormap with pixel types and 3-byte lookup table."
   @type colormap3b() :: {:colormap, :index, :rgb, cmap3b()}
 
   @typedoc "A full colormap with pixel types and 4-byte lookup table."
   @type colormap4b() :: {:colormap, :index, :rgba, cmap4b()}
 
-  @typedoc "Any 3- or 4-byte colormap."
-  @type colormap() :: colormap3b() | colormap4b()
+  @typedoc "Any 1,3,4-byte colormap."
+  @type colormap() :: colormap1b() | colormap3b() | colormap4b()
+
+  @typedoc "A control point to specify an indexed colormap gradient."
+  @type icol3f() :: {byte(), col3f()}
 end

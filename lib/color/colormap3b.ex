@@ -1,6 +1,6 @@
 defmodule Exa.Color.Colormap3b do
   @moduledoc """
-  A map of a 1-byte index to 3-byte RGB or 4-byte RGBA colors.
+  A map of a 1-byte index to 3-byte RGB colors.
   """
 
   require Logger
@@ -16,6 +16,19 @@ defmodule Exa.Color.Colormap3b do
 
   alias Exa.Color.Col3f
   alias Exa.Color.ColorSpace
+
+  # intermediate colormap in col3f format
+  @typep cmap3f() :: %{byte() => C.col3f()}
+
+  # special 3-component pixel type
+  # only for colormap arguments 
+
+  @typep pix_cmap() :: :rgb | :hsl
+  defguard is_pix_cmap(px) when px in [:rgb, :hsl]
+
+  # TODO - other colormap pixel formats, gray, rgba, ...
+
+  # TODO - factor out the gradients 
 
   # ---------
   # constants
@@ -63,18 +76,18 @@ defmodule Exa.Color.Colormap3b do
   # ------------
 
   @doc """
-  Build a colormap with a list of colors.
+  Build a colormap with a list of 3-byte colors.
 
   The list of colors can be any size. 
   The colors will formed into a zero-based colormap,
   with a contiguous range of integers `0..(length(cols)-1)`.
 
-  The pixel specifies the color format of the input colors.
+  The color specifies the color format of the input colors.
   If the pixel is HSL, the colors are converted from HSL to RGB.
   The final colormap is always in RGB byte format.
   """
-  @spec new([C.col3f()], :rgb | :hsl) :: C.colormap3b()
-  def new(cols, pix \\ :rgb) when is_cols3f(cols) do
+  @spec new([C.col3f()], pix_cmap()) :: C.colormap3b()
+  def new(cols, pix \\ :rgb) when is_cols3f(cols) and is_pix_cmap(pix) do
     imax = length(cols)
 
     {^imax, cmap} =
@@ -183,7 +196,7 @@ defmodule Exa.Color.Colormap3b do
   # private methods
   # ---------------
 
-  # TOCO - fix HSL interpolation
+  # TODO - implement HSL interpolation
   #        when H should be nil (s == 0 or l == 0)
   #        then keep the other H fixed as s and l are interpolated
 
@@ -212,7 +225,7 @@ defmodule Exa.Color.Colormap3b do
   end
 
   # convert colormap from HSL to RGB 3f to RGB 3b 
-  @spec convert(C.cmap3b(), C.pixel()) :: C.cmap3b()
+  @spec convert(cmap3f(), pix_cmap()) :: C.cmap3b()
 
   defp convert(cmap, :rgb) do
     for({i, c} <- cmap, into: %{}, do: {i, Col3f.to_col3b(c)})
