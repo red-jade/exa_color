@@ -73,20 +73,18 @@ defmodule Exa.Color.Col1b do
 
   # binary conversions ----------
 
-  @c1 [:gray, :index]
-
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(i, pix \\ :gray) when pix in @c1 and is_col1b(i),
+  def to_bin(pix \\ :gray, i) when is_pix1(pix) and is_col1b(i), 
     do: <<i>>
 
   @impl Colorb
-  def append_bin(buf, pix \\ :gray, i) when pix in @c1 and is_binary(buf) and is_col1b(i),
+  def append_bin(pix \\ :gray, buf, i) when is_pix1(pix) and is_binary(buf) and is_col1b(i),
     do: <<buf::binary, i>>
 
   @impl Colorb
-  def from_bin(<<i, rest::binary>>, pix \\ :gray) when pix in @c1,
+  def from_bin(pix \\ :gray, <<i, rest::binary>>) when is_pix1(pix),
     do: {i, rest}
 
   # -----------------

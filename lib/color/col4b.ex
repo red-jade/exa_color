@@ -10,6 +10,7 @@ defmodule Exa.Color.Col4b do
   require Logger
   import Exa.Types
 
+  import Exa.Color.Types
   alias Exa.Color.Types, as: C
 
   alias Exa.Math
@@ -146,19 +147,17 @@ defmodule Exa.Color.Col4b do
   #        unless the src and dst pixels are different
   #        then need 2 args 
 
-  @c4 [:rgba, :argb, :bgra, :abgr]
-
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(col, pix \\ :rgba) when pix in @c4,
-    do: append_bin(<<>>, pix, col)
+  def to_bin(pix \\ :rgba, col) when is_pix4(pix),
+    do: append_bin(pix, <<>>, col)
 
   @impl Colorb
-  def append_bin(buf, pix \\ :rgba, {c1, c2, c3, c4}) when pix in @c4 and is_binary(buf),
+  def append_bin(pix \\ :rgba, buf, {c1, c2, c3, c4}) when is_pix4(pix) and is_binary(buf),
     do: <<buf::binary, c1, c2, c3, c4>>
 
   @impl Colorb
-  def from_bin(<<c1, c2, c3, c4, rest::binary>>, pix \\ :rgba) when pix in @c4,
+  def from_bin(pix \\ :rgba, <<c1, c2, c3, c4, rest::binary>>) when is_pix4(pix),
     do: {{c1, c2, c3, c4}, rest}
 end

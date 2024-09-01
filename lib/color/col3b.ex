@@ -184,15 +184,15 @@ defmodule Exa.Color.Col3b do
   @behaviour Colorb
 
   @impl Colorb
-  def to_bin(col, pix \\ :rgb) when is_pix3(pix),
-    do: append_bin(<<>>, pix, col)
+  def to_bin(pix \\ :rgb, col) when is_pix3(pix),
+    do: append_bin(pix, <<>>, col)
 
   @impl Colorb
-  def append_bin(buf, pix \\ :rgb, {c1, c2, c3}) when is_pix3(pix) and is_binary(buf),
+  def append_bin(pix \\ :rgb, buf, {c1, c2, c3}) when is_pix3(pix) and is_binary(buf),
     do: <<buf::binary, c1, c2, c3>>
 
   @impl Colorb
-  def from_bin(<<c1, c2, c3, rest::binary>>, pix \\ :rgb) when is_pix3(pix),
+  def from_bin(pix \\ :rgb, <<c1, c2, c3, rest::binary>>) when is_pix3(pix),
     do: {{c1, c2, c3}, rest}
 
   # -----------------
