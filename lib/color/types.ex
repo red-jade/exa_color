@@ -17,13 +17,13 @@ defmodule Exa.Color.Types do
   @doc "A 3-component byte color: RGB, BGR."
   @type col3b() :: {byte(), byte(), byte()}
   defguard is_col3b(c)
-           when is_fix_tuple(c, 3) and
+           when is_tuple_fix(c, 3) and
                   is_byte(elem(c, 0)) and is_byte(elem(c, 1)) and is_byte(elem(c, 2))
 
   @doc "A 4-component byte color: RGBA, ARGB, BGRA, ABGR."
   @type col4b() :: {byte(), byte(), byte(), byte()}
   defguard is_col4b(c)
-           when is_fix_tuple(c, 4) and
+           when is_tuple_fix(c, 4) and
                   is_byte(elem(c, 0)) and is_byte(elem(c, 1)) and
                   is_byte(elem(c, 2)) and is_byte(elem(c, 3))
 
@@ -36,7 +36,7 @@ defmodule Exa.Color.Types do
   @doc "A 3-component float color: RGB or BGR."
   @type col3f() :: {E.unit(), E.unit(), E.unit()}
   defguard is_col3f(c)
-           when is_fix_tuple(c, 3) and
+           when is_tuple_fix(c, 3) and
                   is_unit(elem(c, 0)) and is_unit(elem(c, 1)) and is_unit(elem(c, 2))
 
   @doc "A list of 3-component float colors."
@@ -46,7 +46,7 @@ defmodule Exa.Color.Types do
   @doc "A 4-component float color: RGBA, ARGB, BGRA, ABGR."
   @type col4f() :: {E.unit(), E.unit(), E.unit(), E.unit()}
   defguard is_col4f(c)
-           when is_fix_tuple(c, 4) and
+           when is_tuple_fix(c, 4) and
                   is_unit(elem(c, 0)) and is_unit(elem(c, 1)) and
                   is_unit(elem(c, 2)) and is_unit(elem(c, 3))
 
@@ -85,7 +85,7 @@ defmodule Exa.Color.Types do
 
   @typedoc "A list of 1-component colors."
   @type colors1() :: [color1(), ...]
-  defguard is_colors1(cs) when is_nonempty_list(cs) and is_color1(hd(cs))
+  defguard is_colors1(cs) when is_list_nonempty(cs) and is_color1(hd(cs))
 
   @typedoc "Any 3-component color: RGB or BGR."
   @type color3() :: col3f() | col3b()
@@ -93,7 +93,7 @@ defmodule Exa.Color.Types do
 
   @typedoc "A list of 3-component colors."
   @type colors3() :: [color3(), ...]
-  defguard is_colors3(cs) when is_nonempty_list(cs) and is_color3(hd(cs))
+  defguard is_colors3(cs) when is_list_nonempty(cs) and is_color3(hd(cs))
 
   @typedoc "Any 4-component color: RGBA, ARGB, BGRA, ABGR."
   @type color4() :: col4f() | col4b()
@@ -101,7 +101,7 @@ defmodule Exa.Color.Types do
 
   @typedoc "A list of 4-component colors."
   @type colors4() :: [color4(), ...]
-  defguard is_colors4(cs) when is_nonempty_list(cs) and is_color4(hd(cs))
+  defguard is_colors4(cs) when is_list_nonempty(cs) and is_color4(hd(cs))
 
   # ------------
   # color models
@@ -122,7 +122,7 @@ defmodule Exa.Color.Types do
   @typedoc "Named color has a name and a 3-byte RGB color."
   @type col3name() :: {String.t(), col3b()}
   defguard is_col3name(c)
-           when is_fix_tuple(c, 2) and
+           when is_tuple_fix(c, 2) and
                   is_string(elem(c, 0)) and is_col3b(elem(c, 1))
 
   # -----------
@@ -131,11 +131,11 @@ defmodule Exa.Color.Types do
 
   @typedoc "Text color format for 3-bytes as hexadecimal string."
   @type hex3() :: String.t()
-  defguard is_hex3(h) when is_fix_string(h, 7) and binary_part(h, 0, 1) == "#"
+  defguard is_hex3(h) when is_string_fix(h, 7) and binary_part(h, 0, 1) == "#"
 
   @typedoc "Text color format for 4-bytes as hexadecimal string."
   @type hex4() :: String.t()
-  defguard is_hex4(h) when is_fix_string(h, 9) and binary_part(h, 0, 1) == "#"
+  defguard is_hex4(h) when is_string_fix(h, 9) and binary_part(h, 0, 1) == "#"
 
   # ------
   # pixels
@@ -197,12 +197,12 @@ defmodule Exa.Color.Types do
   @typedoc "A scalar weighted color."
   @type color_weight() :: {weight(), color()}
   defguard is_wcol(wc)
-           when is_fix_tuple(wc, 2) and
+           when is_tuple_fix(wc, 2) and
                   is_weight(elem(wc, 0)) and is_color(elem(wc, 1))
 
   @typedoc "A list of weighted colors."
   @type color_weights() :: [color_weight(), ...]
-  defguard is_wcols(wcs) when is_nonempty_list(wcs) and is_wcol(hd(wcs))
+  defguard is_wcols(wcs) when is_list_nonempty(wcs) and is_wcol(hd(wcs))
 
   # -------------
   # pixel mappers

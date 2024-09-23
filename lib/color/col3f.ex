@@ -143,7 +143,7 @@ defmodule Exa.Color.Col3f do
 
   @doc "From RGB hex string."
   @spec from_hex(C.hex3()) :: C.col3f()
-  def from_hex("#" <> hex) when is_fix_string(hex, 6) do
+  def from_hex("#" <> hex) when is_string_fix(hex, 6) do
     {
       Convert.h2f(binary_part(hex, 0, 2)),
       Convert.h2f(binary_part(hex, 2, 2)),

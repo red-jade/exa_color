@@ -143,7 +143,7 @@ defmodule Exa.Color.Col3b do
   @spec from_hex(C.hex3(), C.pixel3()) :: C.col3b()
   def from_hex(col, pix \\ :rgb)
 
-  def from_hex("#" <> hex, :rgb) when is_fix_string(hex, 6) do
+  def from_hex("#" <> hex, :rgb) when is_string_fix(hex, 6) do
     {
       Convert.h2b(binary_part(hex, 0, 2)),
       Convert.h2b(binary_part(hex, 2, 2)),
@@ -151,7 +151,7 @@ defmodule Exa.Color.Col3b do
     }
   end
 
-  def from_hex("#" <> hex, :bgr) when is_fix_string(hex, 6) do
+  def from_hex("#" <> hex, :bgr) when is_string_fix(hex, 6) do
     {
       Convert.h2b(binary_part(hex, 4, 2)),
       Convert.h2b(binary_part(hex, 2, 2)),

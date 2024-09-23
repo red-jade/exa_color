@@ -108,7 +108,7 @@ defmodule Exa.Color.Col4f do
   @spec from_hex(C.hex4(), C.pixel4()) :: C.col4f()
   def from_hex(hex, pix \\ :rgba)
 
-  def from_hex("#" <> hex, :rgba) when is_fix_string(hex, 8) do
+  def from_hex("#" <> hex, :rgba) when is_string_fix(hex, 8) do
     {
       Convert.h2f(binary_part(hex, 0, 2)),
       Convert.h2f(binary_part(hex, 2, 2)),
