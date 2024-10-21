@@ -3,7 +3,7 @@ defmodule Exa.Color.MixProject do
 
   @lib  :exa_color
   @name "Exa Color"
-  @ver  "0.2.4"
+  @ver  "0.3.0"
 
   # umbrella project
   @exa {:exa,
