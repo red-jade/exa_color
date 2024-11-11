@@ -40,7 +40,7 @@ defmodule Exa.Color.MixProject do
       elixir: "~> 1.17",
       erlc_options: [:verbose, :report_errors, :report_warnings, :export_all],
       start_permanent: Mix.env() == :prod,
-      deps: [@exa|exa_deps] ++ local_deps(),
+      deps: exa_deps ++ local_deps(),
       docs: docs(),
       test_pattern: "*_test.exs",
       dialyzer: [flags: [:no_improper_lists]]
